@@ -18,19 +18,21 @@ const Login = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const loginMutation = useMutation({
-  mutationFn: async (formData: LoginRequest) => {
-        const response = await axiosInstance.post("/api/auth/login", formData);
-        return response.data;
+  const loginMutation = useMutation<LoginResponse, Error, LoginRequest>({
+    mutationFn: async (formData) => {
+      const response = await axiosInstance.post<LoginResponse>(
+        "/api/auth/login",
+        formData
+      );
+      return response.data;
     },
-    onSuccess: (response) => {
-      const token = response.data.token;
-      const user = response.data.user;
+    onSuccess: (data) => {
+      const { token, user } = data;
 
       dispatch(setAuth({ token, user }));
 
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user)); 
+      localStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === "ADMIN") {
         navigate("/admin/users");
@@ -39,9 +41,9 @@ const Login = () => {
       }
     },
     onError: () => {
-        console.log("Login gagal");
+      console.log("Login gagal");
     },
-    });
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +53,6 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-md">
-
         {/* Logo */}
         <div className="flex items-center gap-3 mb-6">
           <img
@@ -69,7 +70,6 @@ const Login = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* Email */}
           <div>
             <label className="block text-sm mb-1">Email</label>
@@ -87,7 +87,6 @@ const Login = () => {
           {/* Password */}
           <div>
             <label className="block text-sm mb-1">Password</label>
-
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -98,7 +97,6 @@ const Login = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
