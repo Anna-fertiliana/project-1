@@ -34,8 +34,13 @@ const Register = () => {
     },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,7 +62,7 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-lg">
-        
+
         {/* Logo */}
         <div className="flex items-center gap-3 mb-6">
           <img
@@ -65,15 +70,23 @@ const Register = () => {
             alt="Booky Logo"
             className="w-7 h-7 object-contain"
           />
-          <span className="font-semibold text-lg">Booky</span>
+          <span className="font-semibold text-lg">
+            Booky
+          </span>
         </div>
 
-        <h1 className="text-2xl font-bold">Register</h1>
+        <h1 className="text-2xl font-bold">
+          Register
+        </h1>
+
         <p className="text-gray-500 text-sm mb-6">
           Create your account to start borrowing books.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           <input
             name="name"
             placeholder="Name"
@@ -121,16 +134,22 @@ const Register = () => {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition"
           >
-            {registerMutation.isPending ? "Loading..." : "Submit"}
+            {registerMutation.isPending
+              ? "Loading..."
+              : "Submit"}
           </button>
         </form>
 
         <p className="text-sm text-center mt-4">
           Already have an account?{" "}
-          <Link to="/" className="text-blue-600 font-medium">
+          <Link
+            to="/"
+            className="text-blue-600 font-medium"
+          >
             Log In
           </Link>
         </p>
+
       </div>
     </div>
   );

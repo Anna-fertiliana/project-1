@@ -26,6 +26,7 @@ const Login = () => {
       );
       return response.data;
     },
+
     onSuccess: (data) => {
       const { token, user } = data;
 
@@ -40,6 +41,7 @@ const Login = () => {
         navigate("/");
       }
     },
+
     onError: () => {
       console.log("Login gagal");
     },
@@ -53,6 +55,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-md">
+
         {/* Logo */}
         <div className="flex items-center gap-3 mb-6">
           <img
@@ -60,24 +63,39 @@ const Login = () => {
             alt="Booky Logo"
             className="w-7 h-7 object-contain"
           />
-          <span className="font-semibold text-lg">Booky</span>
+          <span className="font-semibold text-lg">
+            Booky
+          </span>
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold">Login</h1>
+        <h1 className="text-2xl font-bold">
+          Login
+        </h1>
+
         <p className="text-gray-500 text-sm mb-6">
           Sign in to manage your library account.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
+
           {/* Email */}
           <div>
-            <label className="block text-sm mb-1">Email</label>
+            <label className="block text-sm mb-1">
+              Email
+            </label>
+
             <input
               type="email"
               value={form.email}
               onChange={(e) =>
-                setForm({ ...form, email: e.target.value })
+                setForm({
+                  ...form,
+                  email: e.target.value,
+                })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
@@ -86,23 +104,35 @@ const Login = () => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm mb-1">Password</label>
+            <label className="block text-sm mb-1">
+              Password
+            </label>
+
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={form.password}
                 onChange={(e) =>
-                  setForm({ ...form, password: e.target.value })
+                  setForm({
+                    ...form,
+                    password: e.target.value,
+                  })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword
+                  ? <EyeOff size={18} />
+                  : <Eye size={18} />
+                }
               </button>
             </div>
           </div>
@@ -113,7 +143,9 @@ const Login = () => {
             disabled={loginMutation.isPending}
             className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition font-medium"
           >
-            {loginMutation.isPending ? "Loading..." : "Login"}
+            {loginMutation.isPending
+              ? "Loading..."
+              : "Login"}
           </button>
 
           {/* Error */}
@@ -122,6 +154,7 @@ const Login = () => {
               Invalid email or password
             </p>
           )}
+
         </form>
 
         {/* Register Link */}
@@ -134,6 +167,7 @@ const Login = () => {
             Register
           </Link>
         </p>
+
       </div>
     </div>
   );

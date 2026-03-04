@@ -4,7 +4,7 @@ import { axiosInstance } from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
-  const navigate = useNavigate(); // ✅ PINDAH KE SINI
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<number[]>([]);
 
   /* ================= GET CART ================= */
@@ -36,16 +36,25 @@ export default function Cart() {
   };
 
   if (isLoading) {
-    return <div className="mt-20 text-center">Loading...</div>;
+    return (
+      <div className="mt-20 text-center text-sm">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-semibold mb-8">My Cart</h1>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-6 sm:mb-8">
+        My Cart
+      </h1>
 
-      <div className="grid md:grid-cols-3 gap-10">
-        {/* LEFT */}
+      <div className="grid gap-10 md:grid-cols-3">
+        
+        {/* LEFT - CART ITEMS */}
         <div className="md:col-span-2">
+          
+          {/* Select All */}
           <div className="flex items-center gap-3 mb-6">
             <input
               type="checkbox"
@@ -54,7 +63,7 @@ export default function Cart() {
                 selected.length === cartItems.length
               }
               onChange={toggleSelectAll}
-              className="w-4 h-4"
+              className="w-5 h-5"
             />
             <span className="text-sm text-gray-600">
               Select All
@@ -68,13 +77,13 @@ export default function Cart() {
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 border-b pb-6"
+                  className="flex items-start gap-4 border-b pb-6"
                 >
                   <input
                     type="checkbox"
                     checked={selected.includes(item.id)}
                     onChange={() => toggleSelect(item.id)}
-                    className="w-4 h-4"
+                    className="w-5 h-5 mt-2"
                   />
 
                   <img
@@ -83,19 +92,19 @@ export default function Cart() {
                       "https://via.placeholder.com/80x110"
                     }
                     alt={book.title}
-                    className="w-20 h-28 object-cover rounded-md"
+                    className="w-16 h-24 sm:w-20 sm:h-28 object-cover rounded-md"
                   />
 
-                  <div>
+                  <div className="flex-1">
                     <span className="inline-block text-xs bg-gray-100 px-3 py-1 rounded-full mb-2">
                       {book.category?.name}
                     </span>
 
-                    <h3 className="font-medium text-sm">
+                    <h3 className="font-medium text-sm sm:text-base">
                       {book.title}
                     </h3>
 
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
                       {book.author?.name}
                     </p>
                   </div>
@@ -105,9 +114,9 @@ export default function Cart() {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT - SUMMARY */}
         <div>
-          <div className="bg-white rounded-2xl shadow-sm p-6">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-6 md:sticky md:top-24">
             <h2 className="font-semibold mb-6">
               Loan Summary
             </h2>
@@ -128,7 +137,9 @@ export default function Cart() {
                   state: { selectedBooks: selected },
                 })
               }
-              className="w-full bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700 transition disabled:bg-gray-300"
+              className="w-full bg-blue-600 text-white py-3 rounded-full 
+                         hover:bg-blue-700 transition 
+                         disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               Borrow Book
             </button>

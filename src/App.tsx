@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layout/MainLayout";
+
 import { useAppDispatch } from "./app/hooks";
 import { setAuth } from "./features/authSlice";
+
 import BookDetail from "./pages/BookDetail";
 import Category from "./pages/Category";
 import AuthorDetail from "./pages/AuthorDetail";
@@ -16,27 +19,35 @@ import BorrowSuccess from "./pages/BorrowSuccess";
 import Profile from "./pages/Profile";
 import Borrowed from "./pages/BorrowedList";
 import Reviews from "./pages/Review";
+
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminUserList from "./pages/admin/AdminUserList";
 import AdminBorrowedList from "./pages/admin/AdminBorrowedList";
 import AdminBookList from "./pages/admin/AdminBookList";
 import AdminEditBook from "./pages/admin/AdminEditBook";
 
-
-
 function App() {
-
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
+    const storedUser = localStorage.getItem("user");
 
-    if (token && user) {
-      dispatch(setAuth({
-        token,
-        user: JSON.parse(user)
-      }));
+    if (token && storedUser && storedUser !== "undefined") {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+
+        dispatch(
+          setAuth({
+            token,
+            user: parsedUser,
+          })
+        );
+      } catch (error) {
+        console.error("Invalid user in localStorage");
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
   }, [dispatch]);
 
@@ -44,10 +55,10 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Layout dipakai untuk semua halaman utama */}
+        {/* ================= MAIN LAYOUT ================= */}
         <Route element={<MainLayout />}>
 
-          {/* Public */}
+          {/* PUBLIC */}
           <Route path="/" element={<Home />} />
           <Route path="/books/:id" element={<BookDetail />} />
           <Route path="/category" element={<Category />} />
@@ -59,30 +70,24 @@ function App() {
           <Route path="/borrowed" element={<Borrowed />} />
           <Route path="/reviews" element={<Reviews />} />
 
-          {/* ================= ADMIN ================= */}
+        </Route>
 
-            <Route path="/" element={<Home />} />
-            <Route path="/books/:id" element={<BookDetail />} />
-            <Route path="/cart" element={<Cart />} />
-          </Route>
+        {/* ================= ADMIN AREA ================= */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="ADMIN">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="users" element={<AdminUserList />} />
+          <Route path="borrowed" element={<AdminBorrowedList />} />
+          <Route path="books" element={<AdminBookList />} />
+          <Route path="books/edit/:id" element={<AdminEditBook />} />
+        </Route>
 
-          {/* ADMIN AREA */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute role="ADMIN">
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-          
-        <Route path="borrowed" element={<AdminBorrowedList />} />
-        <Route path="users" element={<AdminUserList />} />
-        <Route path="books" element={<AdminBookList />} />
-        <Route path="books/edit/:id" element={<AdminEditBook />} />
-      </Route>  
-
-          {/* USER PROTECTED */}
+        {/* ================= USER PROTECTED ================= */}
         <Route
           path="/user"
           element={
@@ -92,7 +97,7 @@ function App() {
           }
         />
 
-        {/* AUTH */}
+        {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
