@@ -16,49 +16,66 @@ export default function Login() {
     password: "",
   });
 
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const loginMutation = useMutation<
     LoginResponse,
-    Error,
+    any,
     LoginRequest
   >({
     mutationFn: async (formData) => {
-      const response =
-        await axiosInstance.post<LoginResponse>(
-          "/api/auth/login",
-          formData
-        );
+      console.log("🔥 REQUEST:", formData);
+
+      const response = await axiosInstance.post<LoginResponse>(
+        "/api/auth/login",
+        formData
+      );
 
       return response.data;
     },
 
-    onSuccess: ({ token, user }) => {
+    onSuccess: (data) => {
+      console.log("✅ RESPONSE:", data);
+
+      // 🔥 ambil dari nested data (sesuai backend kamu)
+      const token = data?.data?.token;
+      const user = data?.data?.user;
+
+      if (!token || !user) {
+        setErrorMsg("Invalid response from server");
+        return;
+      }
+
+      // ✅ simpan ke localStorage (biar persist)
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // ✅ simpan ke redux
       dispatch(setAuth({ token, user }));
 
-      navigate(
-        user.role === "ADMIN"
-          ? "/admin/users"
-          : "/"
-      );
+      // ✅ redirect sesuai role
+      navigate(user.role === "ADMIN" ? "/admin/users" : "/");
     },
 
-    onError: () => {
-      console.error("Login failed");
+    onError: (error: any) => {
+      console.log("❌ ERROR:", error);
+
+      const message =
+        error?.response?.data?.message ||
+        "Login failed. Check your credentials.";
+
+      setErrorMsg(message);
     },
   });
 
-  const handleSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErrorMsg("");
     loginMutation.mutate(form);
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
@@ -74,27 +91,18 @@ export default function Login() {
             alt="Booky Logo"
             className="w-7 h-7 object-contain"
           />
-          <span className="font-semibold text-lg">
-            Booky
-          </span>
+          <span className="font-semibold text-lg">Booky</span>
         </div>
 
-        <h1 className="text-2xl font-bold">
-          Login
-        </h1>
+        <h1 className="text-2xl font-bold">Login</h1>
 
         <p className="text-gray-500 text-sm mb-6">
           Sign in to manage your library account.
         </p>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1">
-              Email
-            </label>
+            <label className="block text-sm mb-1">Email</label>
 
             <input
               type="email"
@@ -107,17 +115,11 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1">
-              Password
-            </label>
+            <label className="block text-sm mb-1">Password</label>
 
             <div className="relative">
               <input
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
+                type={showPassword ? "text" : "password"}
                 name="password"
                 value={form.password}
                 onChange={handleChange}
@@ -127,18 +129,10 @@ export default function Login() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(
-                    !showPassword
-                  )
-                }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
               >
-                {showPassword ? (
-                  <EyeOff size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
@@ -148,14 +142,12 @@ export default function Login() {
             disabled={loginMutation.isPending}
             className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition font-medium disabled:bg-gray-300"
           >
-            {loginMutation.isPending
-              ? "Loading..."
-              : "Login"}
+            {loginMutation.isPending ? "Loading..." : "Login"}
           </button>
 
-          {loginMutation.isError && (
+          {errorMsg && (
             <p className="text-red-500 text-sm text-center">
-              Invalid email or password
+              {errorMsg}
             </p>
           )}
         </form>

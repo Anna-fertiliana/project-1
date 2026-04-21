@@ -14,6 +14,14 @@ interface RegisterForm extends RegisterRequest {
   confirmPassword: string;
 }
 
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 export default function Register() {
   const navigate = useNavigate();
 
@@ -25,13 +33,10 @@ export default function Register() {
     confirmPassword: "",
   });
 
-  const [errorMessage, setErrorMessage] =
-    useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const registerMutation = useMutation({
-    mutationFn: async (
-      data: RegisterRequest
-    ) => {
+    mutationFn: async (data: RegisterRequest) => {
       const response = await axiosInstance.post(
         "/api/auth/register",
         data
@@ -44,20 +49,25 @@ export default function Register() {
       navigate("/login");
     },
 
-    onError: () => {
-      setErrorMessage(
-        "Failed to register. Please try again."
-      );
+    onError: (error: ApiError) => {
+      const message =
+        error.response?.data?.message ||
+        "Failed to register. Please try again.";
+
+      setErrorMessage(message);
+      console.error("Register error:", error);
     },
   });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
     setErrorMessage("");
   };

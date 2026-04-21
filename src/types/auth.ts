@@ -7,9 +7,14 @@ export interface User {
   role: Role;
 }
 
+
 export interface LoginResponse {
-  token: string;
-  user: User;
+  success: boolean;
+  message: string;
+  data: {
+    token: string;
+    user: User;
+  };
 }
 
 export interface LoginRequest {
