@@ -14,6 +14,11 @@ interface AuthState {
   user: User | null;
 }
 
+interface AuthPayload {
+  token: string;
+  user: User | null;
+}
+
 const initialState: AuthState = {
   token: null,
   user: null,
@@ -25,27 +30,31 @@ const authSlice = createSlice({
   reducers: {
     setAuth: (
       state,
-      action: PayloadAction<{ token: string; user: User }>
+      action: PayloadAction<AuthPayload>
     ) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
+      const { token, user } = action.payload;
 
-      localStorage.setItem("token", action.payload.token);
-      localStorage.setItem(
-        "user",
-        JSON.stringify(action.payload.user)
-      );
+      state.token = token;
+      state.user = user;
+
+      localStorage.setItem("token", token);
+
+      if (user) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(user)
+        );
+      }
     },
 
     restoreAuth: (
       state,
-      action: PayloadAction<{
-        token: string;
-        user: User | null;
-      }>
+      action: PayloadAction<AuthPayload>
     ) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
+      const { token, user } = action.payload;
+
+      state.token = token;
+      state.user = user;
     },
 
     logout: (state) => {
@@ -58,7 +67,10 @@ const authSlice = createSlice({
   },
 });
 
-export const { setAuth, restoreAuth, logout } =
-  authSlice.actions;
+export const {
+  setAuth,
+  restoreAuth,
+  logout,
+} = authSlice.actions;
 
 export default authSlice.reducer;

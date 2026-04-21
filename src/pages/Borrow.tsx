@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -9,42 +9,77 @@ import {
 import { useAppSelector } from "../app/hooks";
 import { axiosInstance } from "../api/axios";
 
+interface Book {
+  id: number;
+  title: string;
+  coverImage?: string;
+  category?: {
+    name: string;
+  };
+  author?: {
+    name: string;
+  };
+}
+
 export default function Borrow() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  const { user } = useAppSelector((state) => state.auth);
-  const { bookId, selectedBooks } = location.state || {};
+  const { user } = useAppSelector(
+    (state) => state.auth
+  );
 
-  const booksToFetch: number[] = useMemo(() => {
-    if (selectedBooks?.length > 0) return selectedBooks;
-    if (bookId) return [bookId];
-    return [];
-  }, [bookId, selectedBooks]);
-
-  const { data: books, isLoading } = useQuery({
-    queryKey: ["borrow-books", booksToFetch],
-    queryFn: async () => {
-      const responses = await Promise.all(
-        booksToFetch.map((id: number) =>
-          axiosInstance.get(`/api/books/${id}`)
-        )
-      );
-
-      return responses.map((res) => res.data.data);
-    },
-    enabled: booksToFetch.length > 0,
-  });
+  const { bookId, selectedBooks } =
+    location.state || {};
 
   const [duration, setDuration] = useState(3);
   const [borrowDate, setBorrowDate] = useState(
     dayjs().format("YYYY-MM-DD")
   );
-  const [agreedReturn, setAgreedReturn] = useState(false);
-  const [agreedPolicy, setAgreedPolicy] = useState(false);
+  const [agreedReturn, setAgreedReturn] =
+    useState(false);
+  const [agreedPolicy, setAgreedPolicy] =
+    useState(false);
+  const [errorMessage, setErrorMessage] =
+    useState("");
 
-  const returnDate = dayjs(borrowDate).add(duration, "day");
+  const booksToFetch: number[] = useMemo(() => {
+    if (selectedBooks?.length > 0) {
+      return selectedBooks;
+    }
+
+    if (bookId) {
+      return [bookId];
+    }
+
+    return [];
+  }, [bookId, selectedBooks]);
+
+  const returnDate = dayjs(borrowDate).add(
+    duration,
+    "day"
+  );
+
+  const {
+    data: books = [],
+    isLoading,
+    isError,
+  } = useQuery<Book[]>({
+    queryKey: ["borrow-books", booksToFetch],
+    queryFn: async () => {
+      const responses = await Promise.all(
+        booksToFetch.map((id) =>
+          axiosInstance.get(`/api/books/${id}`)
+        )
+      );
+
+      return responses.map(
+        (response) => response.data.data
+      );
+    },
+    enabled: booksToFetch.length > 0,
+  });
 
   const borrowMutation = useMutation({
     mutationFn: async () => {
@@ -52,12 +87,6 @@ export default function Borrow() {
         bookIds: booksToFetch,
         borrowDate,
         duration,
-      });
-    },
-
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ["borrowed-books"],
       });
     },
 
@@ -72,18 +101,27 @@ export default function Borrow() {
 
       navigate("/borrow-success", {
         state: {
-          returnDate: returnDate.format("DD MMMM YYYY"),
+          returnDate:
+            returnDate.format(
+              "DD MMMM YYYY"
+            ),
         },
       });
     },
 
     onError: () => {
-      alert("Borrow failed. Please try again.");
+      setErrorMessage(
+        "Failed to borrow books. Please try again."
+      );
     },
   });
 
   const handleConfirm = () => {
-    if (!agreedReturn || !agreedPolicy) return;
+    if (!agreedReturn || !agreedPolicy) {
+      return;
+    }
+
+    setErrorMessage("");
     borrowMutation.mutate();
   };
 
@@ -91,6 +129,14 @@ export default function Borrow() {
     return (
       <div className="text-center mt-20 text-sm">
         Loading...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center mt-20 text-sm text-red-500">
+        Failed to load books.
       </div>
     );
   }
@@ -103,9 +149,7 @@ export default function Borrow() {
         </h1>
 
         <div className="grid gap-10 lg:grid-cols-3">
-          {/* LEFT */}
           <div className="lg:col-span-2 space-y-10">
-            {/* USER INFO */}
             <div>
               <h2 className="font-semibold mb-6 text-base sm:text-lg">
                 User Information
@@ -113,12 +157,21 @@ export default function Borrow() {
 
               <div className="space-y-4 text-sm bg-white p-6 rounded-2xl shadow-sm">
                 {[
-                  { label: "Name", value: user?.name },
-                  { label: "Email", value: user?.email },
-                  { label: "Phone", value: user?.phone },
-                ].map((item, i) => (
+                  {
+                    label: "Name",
+                    value: user?.name,
+                  },
+                  {
+                    label: "Email",
+                    value: user?.email,
+                  },
+                  {
+                    label: "Phone",
+                    value: user?.phone,
+                  },
+                ].map((item) => (
                   <div
-                    key={i}
+                    key={item.label}
                     className="flex justify-between"
                   >
                     <span className="text-gray-500">
@@ -132,14 +185,13 @@ export default function Borrow() {
               </div>
             </div>
 
-            {/* BOOK LIST */}
             <div>
               <h2 className="font-semibold mb-6 text-base sm:text-lg">
                 Book List
               </h2>
 
               <div className="space-y-6">
-                {books?.map((book: any) => (
+                {books.map((book) => (
                   <div
                     key={book.id}
                     className="bg-white p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-6"
@@ -172,73 +224,80 @@ export default function Borrow() {
             </div>
           </div>
 
-          {/* RIGHT */}
           <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 h-fit lg:sticky lg:top-24">
             <h3 className="font-semibold mb-6">
               Complete Your Borrow Request
             </h3>
 
-            {/* BORROW DATE */}
             <div className="mb-6">
               <label className="text-sm text-gray-500">
                 Borrow Date
               </label>
+
               <input
                 type="date"
                 value={borrowDate}
                 onChange={(e) =>
-                  setBorrowDate(e.target.value)
+                  setBorrowDate(
+                    e.target.value
+                  )
                 }
                 className="mt-2 w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            {/* DURATION */}
             <div className="mb-6">
               <label className="text-sm text-gray-500">
                 Borrow Duration
               </label>
 
               <div className="mt-3 space-y-3">
-                {[3, 5, 10].map((d) => (
+                {[3, 5, 10].map((day) => (
                   <label
-                    key={d}
+                    key={day}
                     className="flex items-center gap-3 text-sm"
                   >
                     <input
                       type="radio"
-                      checked={duration === d}
-                      onChange={() => setDuration(d)}
+                      checked={
+                        duration === day
+                      }
+                      onChange={() =>
+                        setDuration(day)
+                      }
                       className="w-4 h-4"
                     />
-                    {d} Days
+                    {day} Days
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* RETURN DATE */}
             <div className="mb-6">
               <p className="text-sm text-gray-500">
                 Return Date
               </p>
               <p className="text-red-500 font-medium mt-1">
-                {returnDate.format("DD MMMM YYYY")}
+                {returnDate.format(
+                  "DD MMMM YYYY"
+                )}
               </p>
             </div>
 
-            {/* AGREEMENT */}
-            <div className="space-y-3 mb-6 text-sm">
+            <div className="space-y-3 mb-4 text-sm">
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
                   checked={agreedReturn}
                   onChange={(e) =>
-                    setAgreedReturn(e.target.checked)
+                    setAgreedReturn(
+                      e.target.checked
+                    )
                   }
                   className="w-4 h-4 mt-1"
                 />
-                I agree to return the book(s) before the due date.
+                I agree to return the book(s)
+                before the due date.
               </label>
 
               <label className="flex items-start gap-3">
@@ -246,13 +305,22 @@ export default function Borrow() {
                   type="checkbox"
                   checked={agreedPolicy}
                   onChange={(e) =>
-                    setAgreedPolicy(e.target.checked)
+                    setAgreedPolicy(
+                      e.target.checked
+                    )
                   }
                   className="w-4 h-4 mt-1"
                 />
-                I accept the library borrowing policy.
+                I accept the library borrowing
+                policy.
               </label>
             </div>
+
+            {errorMessage && (
+              <p className="text-sm text-red-500 mb-4">
+                {errorMessage}
+              </p>
+            )}
 
             <button
               disabled={
