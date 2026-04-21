@@ -8,7 +8,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layout/MainLayout";
 
 import { useAppDispatch } from "./app/hooks";
-import { setAuth } from "./features/authSlice";
+import { restoreAuth } from "./features/authSlice";
 
 import BookDetail from "./pages/BookDetail";
 import Category from "./pages/Category";
@@ -38,15 +38,14 @@ function App() {
         const parsedUser = JSON.parse(storedUser);
 
         dispatch(
-          setAuth({
+          restoreAuth({
             token,
             user: parsedUser,
           })
         );
-      } catch (error) {
-        console.error("Invalid user in localStorage");
-        localStorage.removeItem("user");
+      } catch {
         localStorage.removeItem("token");
+        localStorage.removeItem("user");
       }
     }
   }, [dispatch]);
@@ -54,22 +53,60 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* ================= MAIN LAYOUT ================= */}
         <Route element={<MainLayout />}>
-
-          {/* PUBLIC */}
+          {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/books/:id" element={<BookDetail />} />
           <Route path="/category" element={<Category />} />
           <Route path="/authors/:id" element={<AuthorDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/borrow" element={<Borrow />} />
-          <Route path="/borrow-success" element={<BorrowSuccess />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/borrowed" element={<Borrowed />} />
-          <Route path="/reviews" element={<Reviews />} />
 
+          {/* USER PROTECTED ROUTES */}
+          <Route
+            path="/borrow"
+            element={
+              <ProtectedRoute role="USER">
+                <Borrow />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/borrow-success"
+            element={
+              <ProtectedRoute role="USER">
+                <BorrowSuccess />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute role="USER">
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/borrowed"
+            element={
+              <ProtectedRoute role="USER">
+                <Borrowed />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reviews"
+            element={
+              <ProtectedRoute role="USER">
+                <Reviews />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* ================= ADMIN AREA ================= */}
@@ -87,20 +124,9 @@ function App() {
           <Route path="books/edit/:id" element={<AdminEditBook />} />
         </Route>
 
-        {/* ================= USER PROTECTED ================= */}
-        <Route
-          path="/user"
-          element={
-            <ProtectedRoute role="USER">
-              <div>User Dashboard</div>
-            </ProtectedRoute>
-          }
-        />
-
         {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
       </Routes>
     </BrowserRouter>
   );

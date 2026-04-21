@@ -1,7 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-/* ================= USER TYPE ================= */
 export interface User {
   id: number;
   name: string;
@@ -10,18 +9,16 @@ export interface User {
   role: "USER" | "ADMIN";
 }
 
-/* ================= STATE ================= */
 interface AuthState {
   token: string | null;
   user: User | null;
 }
 
 const initialState: AuthState = {
-  token: localStorage.getItem("token"),
+  token: null,
   user: null,
 };
 
-/* ================= SLICE ================= */
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -32,15 +29,36 @@ const authSlice = createSlice({
     ) => {
       state.token = action.payload.token;
       state.user = action.payload.user;
+
+      localStorage.setItem("token", action.payload.token);
+      localStorage.setItem(
+        "user",
+        JSON.stringify(action.payload.user)
+      );
+    },
+
+    restoreAuth: (
+      state,
+      action: PayloadAction<{
+        token: string;
+        user: User | null;
+      }>
+    ) => {
+      state.token = action.payload.token;
+      state.user = action.payload.user;
     },
 
     logout: (state) => {
       state.token = null;
       state.user = null;
+
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
 });
 
-export const { setAuth, logout } = authSlice.actions;
+export const { setAuth, restoreAuth, logout } =
+  authSlice.actions;
+
 export default authSlice.reducer;

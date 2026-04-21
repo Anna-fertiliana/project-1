@@ -1,15 +1,20 @@
 import { useState, useMemo } from "react";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAppSelector } from "../app/hooks";
 import { axiosInstance } from "../api/axios";
 
 export default function Borrow() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAppSelector((state) => state.auth);
+  const queryClient = useQueryClient();
 
+  const { user } = useAppSelector((state) => state.auth);
   const { bookId, selectedBooks } = location.state || {};
 
   const booksToFetch: number[] = useMemo(() => {
@@ -26,6 +31,7 @@ export default function Borrow() {
           axiosInstance.get(`/api/books/${id}`)
         )
       );
+
       return responses.map((res) => res.data.data);
     },
     enabled: booksToFetch.length > 0,
@@ -40,32 +46,65 @@ export default function Borrow() {
 
   const returnDate = dayjs(borrowDate).add(duration, "day");
 
+  const borrowMutation = useMutation({
+    mutationFn: async () => {
+      return axiosInstance.post("/api/borrow", {
+        bookIds: booksToFetch,
+        borrowDate,
+        duration,
+      });
+    },
+
+    onMutate: async () => {
+      await queryClient.cancelQueries({
+        queryKey: ["borrowed-books"],
+      });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["borrowed-books"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["books"],
+      });
+
+      navigate("/borrow-success", {
+        state: {
+          returnDate: returnDate.format("DD MMMM YYYY"),
+        },
+      });
+    },
+
+    onError: () => {
+      alert("Borrow failed. Please try again.");
+    },
+  });
+
   const handleConfirm = () => {
     if (!agreedReturn || !agreedPolicy) return;
-    navigate("/borrow-success", {
-      state: {
-        returnDate: returnDate.format("DD MMMM YYYY"),
-      },
-    });
+    borrowMutation.mutate();
   };
 
-  if (isLoading)
-    return <div className="text-center mt-20 text-sm">Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="text-center mt-20 text-sm">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">
-
       <div className="max-w-6xl mx-auto">
-
         <h1 className="text-xl sm:text-2xl font-semibold mb-8 sm:mb-12">
           Checkout
         </h1>
 
         <div className="grid gap-10 lg:grid-cols-3">
-
-          {/* ================= LEFT ================= */}
+          {/* LEFT */}
           <div className="lg:col-span-2 space-y-10">
-
             {/* USER INFO */}
             <div>
               <h2 className="font-semibold mb-6 text-base sm:text-lg">
@@ -103,8 +142,7 @@ export default function Borrow() {
                 {books?.map((book: any) => (
                   <div
                     key={book.id}
-                    className="bg-white p-6 rounded-2xl shadow-sm 
-                               flex flex-col sm:flex-row gap-6"
+                    className="bg-white p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-6"
                   >
                     <img
                       src={
@@ -134,9 +172,8 @@ export default function Borrow() {
             </div>
           </div>
 
-          {/* ================= RIGHT ================= */}
+          {/* RIGHT */}
           <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 h-fit lg:sticky lg:top-24">
-
             <h3 className="font-semibold mb-6">
               Complete Your Borrow Request
             </h3>
@@ -152,8 +189,7 @@ export default function Borrow() {
                 onChange={(e) =>
                   setBorrowDate(e.target.value)
                 }
-                className="mt-2 w-full border rounded-lg px-4 py-3 text-sm 
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-2 w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -219,14 +255,18 @@ export default function Borrow() {
             </div>
 
             <button
-              disabled={!agreedReturn || !agreedPolicy}
+              disabled={
+                !agreedReturn ||
+                !agreedPolicy ||
+                borrowMutation.isPending
+              }
               onClick={handleConfirm}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium transition
-                         disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium transition disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              Confirm & Borrow
+              {borrowMutation.isPending
+                ? "Processing..."
+                : "Confirm & Borrow"}
             </button>
-
           </div>
         </div>
       </div>

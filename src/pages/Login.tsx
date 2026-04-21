@@ -4,10 +4,10 @@ import { axiosInstance } from "../api/axios";
 import { useAppDispatch } from "../app/hooks";
 import { setAuth } from "../features/authSlice";
 import { useNavigate, Link } from "react-router-dom";
-import type { LoginResponse, LoginRequest } from "../types/auth";
+import type { LoginRequest, LoginResponse } from "../types/auth";
 import { Eye, EyeOff } from "lucide-react";
 
-const Login = () => {
+export default function Login() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -16,47 +16,58 @@ const Login = () => {
     password: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-  const loginMutation = useMutation<LoginResponse, Error, LoginRequest>({
+  const loginMutation = useMutation<
+    LoginResponse,
+    Error,
+    LoginRequest
+  >({
     mutationFn: async (formData) => {
-      const response = await axiosInstance.post<LoginResponse>(
-        "/api/auth/login",
-        formData
-      );
+      const response =
+        await axiosInstance.post<LoginResponse>(
+          "/api/auth/login",
+          formData
+        );
+
       return response.data;
     },
 
-    onSuccess: (data) => {
-      const { token, user } = data;
-
+    onSuccess: ({ token, user }) => {
       dispatch(setAuth({ token, user }));
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      if (user.role === "ADMIN") {
-        navigate("/admin/users");
-      } else {
-        navigate("/");
-      }
+      navigate(
+        user.role === "ADMIN"
+          ? "/admin/users"
+          : "/"
+      );
     },
 
     onError: () => {
-      console.log("Login gagal");
+      console.error("Login failed");
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
     loginMutation.mutate(form);
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-md">
-
-        {/* Logo */}
         <div className="flex items-center gap-3 mb-6">
           <img
             src="/logo.svg"
@@ -68,7 +79,6 @@ const Login = () => {
           </span>
         </div>
 
-        {/* Title */}
         <h1 className="text-2xl font-bold">
           Login
         </h1>
@@ -81,8 +91,6 @@ const Login = () => {
           onSubmit={handleSubmit}
           className="space-y-4"
         >
-
-          {/* Email */}
           <div>
             <label className="block text-sm mb-1">
               Email
@@ -90,19 +98,14 @@ const Login = () => {
 
             <input
               type="email"
+              name="email"
               value={form.email}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  email: e.target.value,
-                })
-              }
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm mb-1">
               Password
@@ -110,14 +113,14 @@ const Login = () => {
 
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"}
-                value={form.password}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    password: e.target.value,
-                  })
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
                 }
+                name="password"
+                value={form.password}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -125,39 +128,38 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() =>
-                  setShowPassword(!showPassword)
+                  setShowPassword(
+                    !showPassword
+                  )
                 }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword
-                  ? <EyeOff size={18} />
-                  : <Eye size={18} />
-                }
+                {showPassword ? (
+                  <EyeOff size={18} />
+                ) : (
+                  <Eye size={18} />
+                )}
               </button>
             </div>
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             disabled={loginMutation.isPending}
-            className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition font-medium"
+            className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition font-medium disabled:bg-gray-300"
           >
             {loginMutation.isPending
               ? "Loading..."
               : "Login"}
           </button>
 
-          {/* Error */}
           {loginMutation.isError && (
             <p className="text-red-500 text-sm text-center">
               Invalid email or password
             </p>
           )}
-
         </form>
 
-        {/* Register Link */}
         <p className="text-sm text-center mt-6">
           Don't have an account?{" "}
           <Link
@@ -167,10 +169,7 @@ const Login = () => {
             Register
           </Link>
         </p>
-
       </div>
     </div>
   );
-};
-
-export default Login;
+}
