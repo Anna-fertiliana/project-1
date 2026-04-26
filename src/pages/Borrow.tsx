@@ -45,7 +45,10 @@ export default function Borrow() {
     useState("");
 
   const booksToFetch: number[] = useMemo(() => {
-    if (selectedBooks?.length > 0) {
+    if (
+      Array.isArray(selectedBooks) &&
+      selectedBooks.length > 0
+    ) {
       return selectedBooks;
     }
 
@@ -75,7 +78,7 @@ export default function Borrow() {
       );
 
       return responses.map(
-        (response) => response.data.data
+        (res) => res.data.data
       );
     },
     enabled: booksToFetch.length > 0,
@@ -83,11 +86,18 @@ export default function Borrow() {
 
   const borrowMutation = useMutation({
     mutationFn: async () => {
-      return axiosInstance.post("/api/borrow", {
-        bookIds: booksToFetch,
-        borrowDate,
-        duration,
-      });
+      if (!booksToFetch.length) {
+        throw new Error("No book selected");
+      }
+
+      const response =
+        await axiosInstance.post("/api/loans", {
+          bookId: booksToFetch[0],
+          borrowDate,
+          duration,
+        });
+
+      return response.data;
     },
 
     onSuccess: () => {
@@ -109,9 +119,15 @@ export default function Borrow() {
       });
     },
 
-    onError: () => {
+    onError: (error: any) => {
+      console.error(
+        "Borrow error:",
+        error.response?.data
+      );
+
       setErrorMessage(
-        "Failed to borrow books. Please try again."
+        error.response?.data?.message ||
+          "Failed to borrow books. Please try again."
       );
     },
   });
@@ -133,10 +149,10 @@ export default function Borrow() {
     );
   }
 
-  if (isError) {
+  if (isError || booksToFetch.length === 0) {
     return (
       <div className="text-center mt-20 text-sm text-red-500">
-        Failed to load books.
+        Failed to load book data.
       </div>
     );
   }
@@ -144,57 +160,51 @@ export default function Borrow() {
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-semibold mb-8 sm:mb-12">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-8">
           Checkout
         </h1>
 
         <div className="grid gap-10 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-10">
-            <div>
-              <h2 className="font-semibold mb-6 text-base sm:text-lg">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white p-6 rounded-2xl shadow-sm">
+              <h2 className="font-semibold mb-4">
                 User Information
               </h2>
 
-              <div className="space-y-4 text-sm bg-white p-6 rounded-2xl shadow-sm">
-                {[
-                  {
-                    label: "Name",
-                    value: user?.name,
-                  },
-                  {
-                    label: "Email",
-                    value: user?.email,
-                  },
-                  {
-                    label: "Phone",
-                    value: user?.phone,
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex justify-between"
-                  >
-                    <span className="text-gray-500">
-                      {item.label}
-                    </span>
-                    <span className="font-medium text-right">
-                      {item.value || "-"}
-                    </span>
-                  </div>
-                ))}
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">
+                    Name
+                  </span>
+                  <span>{user?.name || "-"}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-500">
+                    Email
+                  </span>
+                  <span>{user?.email || "-"}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-500">
+                    Phone
+                  </span>
+                  <span>{user?.phone || "-"}</span>
+                </div>
               </div>
             </div>
 
             <div>
-              <h2 className="font-semibold mb-6 text-base sm:text-lg">
+              <h2 className="font-semibold mb-4">
                 Book List
               </h2>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {books.map((book) => (
                   <div
                     key={book.id}
-                    className="bg-white p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row gap-6"
+                    className="bg-white p-5 rounded-2xl shadow-sm flex gap-4"
                   >
                     <img
                       src={
@@ -202,10 +212,10 @@ export default function Borrow() {
                         "https://via.placeholder.com/80x110"
                       }
                       alt={book.title}
-                      className="w-24 h-32 sm:w-20 sm:h-28 object-cover rounded-lg mx-auto sm:mx-0"
+                      className="w-20 h-28 object-cover rounded-lg"
                     />
 
-                    <div className="flex-1 text-center sm:text-left">
+                    <div>
                       <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">
                         {book.category?.name}
                       </span>
@@ -224,12 +234,12 @@ export default function Borrow() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8 h-fit lg:sticky lg:top-24">
+          <div className="bg-white rounded-2xl shadow-md p-6 h-fit">
             <h3 className="font-semibold mb-6">
               Complete Your Borrow Request
             </h3>
 
-            <div className="mb-6">
+            <div className="mb-5">
               <label className="text-sm text-gray-500">
                 Borrow Date
               </label>
@@ -242,20 +252,20 @@ export default function Borrow() {
                     e.target.value
                   )
                 }
-                className="mt-2 w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-2 w-full border rounded-lg px-4 py-3 text-sm"
               />
             </div>
 
-            <div className="mb-6">
+            <div className="mb-5">
               <label className="text-sm text-gray-500">
                 Borrow Duration
               </label>
 
-              <div className="mt-3 space-y-3">
+              <div className="mt-3 space-y-2">
                 {[3, 5, 10].map((day) => (
                   <label
                     key={day}
-                    className="flex items-center gap-3 text-sm"
+                    className="flex items-center gap-2 text-sm"
                   >
                     <input
                       type="radio"
@@ -265,7 +275,6 @@ export default function Borrow() {
                       onChange={() =>
                         setDuration(day)
                       }
-                      className="w-4 h-4"
                     />
                     {day} Days
                   </label>
@@ -285,7 +294,7 @@ export default function Borrow() {
             </div>
 
             <div className="space-y-3 mb-4 text-sm">
-              <label className="flex items-start gap-3">
+              <label className="flex gap-2">
                 <input
                   type="checkbox"
                   checked={agreedReturn}
@@ -294,13 +303,11 @@ export default function Borrow() {
                       e.target.checked
                     )
                   }
-                  className="w-4 h-4 mt-1"
                 />
-                I agree to return the book(s)
-                before the due date.
+                I agree to return the book(s).
               </label>
 
-              <label className="flex items-start gap-3">
+              <label className="flex gap-2">
                 <input
                   type="checkbox"
                   checked={agreedPolicy}
@@ -309,10 +316,8 @@ export default function Borrow() {
                       e.target.checked
                     )
                   }
-                  className="w-4 h-4 mt-1"
                 />
-                I accept the library borrowing
-                policy.
+                I accept the borrowing policy.
               </label>
             </div>
 
@@ -323,13 +328,13 @@ export default function Borrow() {
             )}
 
             <button
+              onClick={handleConfirm}
               disabled={
                 !agreedReturn ||
                 !agreedPolicy ||
                 borrowMutation.isPending
               }
-              onClick={handleConfirm}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700 disabled:bg-gray-300"
             >
               {borrowMutation.isPending
                 ? "Processing..."

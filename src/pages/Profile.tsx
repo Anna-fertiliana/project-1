@@ -1,9 +1,23 @@
 import { useState } from "react";
 import { useAppSelector } from "../app/hooks";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const { user } = useAppSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("profile");
+  const navigate = useNavigate();
+
+  const handleTab = (tab: string) => {
+    setActiveTab(tab);
+
+    if (tab === "borrowed") {
+      navigate("/borrowed");
+    }
+
+    if (tab === "reviews") {
+      navigate("/reviews/16");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -18,7 +32,7 @@ export default function Profile() {
               {["profile", "borrowed", "reviews"].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => handleTab(tab)}
                   className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition ${
                     activeTab === tab
                       ? "bg-white shadow text-black"
@@ -36,9 +50,18 @@ export default function Profile() {
           </div>
 
           {/* Title */}
-          <h2 className="text-lg sm:text-xl font-semibold mb-6">
-            Profile
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold">
+              Profile
+            </h2>
+
+          <button
+            onClick={() => navigate("/")}
+            className="mb-4 text-sm text-blue-600 hover:underline"
+          >
+            ← Back to Home
+          </button>
+          </div>
 
           {/* Card */}
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-6 sm:p-8 w-full">

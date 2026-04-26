@@ -19,6 +19,9 @@ import BorrowSuccess from "./pages/BorrowSuccess";
 import Profile from "./pages/Profile";
 import Borrowed from "./pages/BorrowedList";
 import Reviews from "./pages/Review";
+import BooksPage from "./pages/BooksPage";
+import ReviewCreate from "./pages/ReviewCreate";
+
 
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminUserList from "./pages/admin/AdminUserList";
@@ -61,6 +64,7 @@ function App() {
           <Route path="/category" element={<Category />} />
           <Route path="/authors/:id" element={<AuthorDetail />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/books" element={<BooksPage />} />
 
           {/* USER PROTECTED ROUTES */}
           <Route
@@ -100,14 +104,25 @@ function App() {
           />
 
           <Route
-            path="/reviews"
+            path="/reviews/:bookId?"
             element={
               <ProtectedRoute role="USER">
                 <Reviews />
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/reviews/create/:bookId"
+            element={
+              <ProtectedRoute role="USER">
+                <ReviewCreate />
+              </ProtectedRoute>
+            }
+          />
         </Route>
+
+
 
         {/* ================= ADMIN AREA ================= */}
         <Route

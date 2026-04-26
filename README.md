@@ -67,7 +67,7 @@ A modern Library Web Application built with React, featuring authentication, boo
 
 * `useQuery` → fetch books, details, loans
 * `useMutation` → login, borrow, review
-* Optimistic updates for faster UX
+* Fast and responsive UI updates for better user experience
 
 ---
 
@@ -137,6 +137,8 @@ This project uses a backend API documented via Swagger.
 - ✅ Review System
 - ✅ Protected API Requests
 - ✅ Responsive UI
+
+This project is actively maintained and open for improvements.
 
 ---
 

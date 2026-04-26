@@ -3,25 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../api/axios";
 import dayjs from "dayjs";
 import { Star } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+
 
 interface Review {
   id: number;
-  rating: number;
+  star: number;
   comment: string;
   createdAt: string;
-  book?: {
-    title?: string;
-    coverImage?: string;
-    category?: {
-      name?: string;
-    };
-    author?: {
-      name?: string;
-    };
+  user?: {
+    name?: string;
   };
 }
 
 export default function Reviews() {
+  const { bookId } = useParams();
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
   const {
@@ -29,35 +26,41 @@ export default function Reviews() {
     isLoading,
     isError,
   } = useQuery<Review[]>({
-    queryKey: ["reviews"],
+    queryKey: ["reviews", bookId],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/reviews");
-
-      if (Array.isArray(res.data)) {
-        return res.data;
-      }
-
-      return res.data.data;
-    },
+  if (bookId) {
+    const res = await axiosInstance.get(
+      `/api/reviews/book/${bookId}`
+    );
+    return res.data?.data?.reviews || [];
+  } else {
+    const res = await axiosInstance.get(`/api/reviews`);
+    return res.data?.data || [];
+  }
+},
+enabled: true,
   });
 
+
   const filteredReviews = reviews.filter((review) =>
-    review.book?.title
+    review.comment
       ?.toLowerCase()
       .includes(search.toLowerCase())
   );
 
+  // Loading
   if (isLoading) {
     return (
-      <div className="text-center mt-16">
+      <div className="text-center mt-20 text-sm text-gray-500">
         Loading reviews...
       </div>
     );
   }
 
+  // Error
   if (isError) {
     return (
-      <div className="text-center mt-16 text-red-500">
+      <div className="text-center mt-20 text-red-500 text-sm">
         Failed to load reviews.
       </div>
     );
@@ -66,14 +69,25 @@ export default function Reviews() {
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-lg sm:text-xl font-semibold mb-6">
-          Reviews
-        </h2>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold">
+            Reviews
+          </h2>
 
+          <button
+            onClick={() => navigate("/")}
+            className="mb-4 text-sm text-blue-600 hover:underline"
+          >
+            ← Back to Home
+          </button>
+        </div>
+
+        {/* Search */}
         <div className="mb-6 sm:mb-8">
           <input
             type="text"
-            placeholder="Search Reviews"
+            placeholder="Search reviews..."
             value={search}
             onChange={(e) =>
               setSearch(e.target.value)
@@ -82,10 +96,11 @@ export default function Reviews() {
           />
         </div>
 
+        {/* Empty */}
         {filteredReviews.length === 0 ? (
-          <p className="text-gray-400 mt-8">
+          <div className="bg-white rounded-2xl p-8 text-center text-sm text-gray-400 shadow-sm">
             No reviews found.
-          </p>
+          </div>
         ) : (
           <div className="space-y-4 sm:space-y-6">
             {filteredReviews.map((review) => (
@@ -93,54 +108,37 @@ export default function Reviews() {
                 key={review.id}
                 className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6"
               >
-                <p className="text-xs text-gray-500 mb-4">
+                {/* Date */}
+                <p className="text-xs text-gray-500 mb-2">
                   {dayjs(review.createdAt).format(
                     "DD MMMM YYYY, HH:mm"
                   )}
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 border-t pt-4 sm:pt-6">
-                  <img
-                    src={
-                      review.book?.coverImage ||
-                      "https://via.placeholder.com/80x110"
-                    }
-                    alt={review.book?.title}
-                    className="w-24 sm:w-20 h-32 sm:h-28 object-cover rounded-lg mx-auto sm:mx-0"
-                  />
+                {/* User */}
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  {review.user?.name || "Anonymous"}
+                </p>
 
-                  <div className="flex-1 text-center sm:text-left">
-                    <span className="text-xs bg-gray-100 px-3 py-1 rounded-full">
-                      {review.book?.category?.name}
-                    </span>
-
-                    <h3 className="font-medium mt-3">
-                      {review.book?.title}
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mb-3">
-                      {review.book?.author?.name}
-                    </p>
-
-                    <div className="flex justify-center sm:justify-start gap-1 mb-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={16}
-                          className={
-                            star <= review.rating
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-gray-300"
-                          }
-                        />
-                      ))}
-                    </div>
-
-                    <p className="text-sm text-gray-600">
-                      {review.comment}
-                    </p>
-                  </div>
+                {/* Stars */}
+                <div className="flex gap-1 mb-3">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={16}
+                      className={
+                        star <= review.star
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-300"
+                      }
+                    />
+                  ))}
                 </div>
+
+                {/* Comment */}
+                <p className="text-sm text-gray-600">
+                  {review.comment}
+                </p>
               </div>
             ))}
           </div>

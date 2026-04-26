@@ -38,7 +38,6 @@ export default function Login() {
     onSuccess: (data) => {
       console.log("✅ RESPONSE:", data);
 
-      // 🔥 ambil dari nested data (sesuai backend kamu)
       const token = data?.data?.token;
       const user = data?.data?.user;
 
@@ -47,7 +46,7 @@ export default function Login() {
         return;
       }
 
-      // ✅ simpan ke localStorage (biar persist)
+      // ✅ simpan ke localStorage 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 

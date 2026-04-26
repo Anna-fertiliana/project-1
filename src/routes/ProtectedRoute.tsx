@@ -15,12 +15,24 @@ export default function ProtectedRoute({
     (state) => state.auth
   );
 
-  // User belum login
+  // ✅ ambil dari localStorage
+  const localToken = localStorage.getItem("token");
+
+  // ⏳ kalau redux belum keisi tapi localStorage ada → tunggu
+  if (!token && localToken) {
+    return (
+      <div className="text-center mt-10">
+        Loading...
+      </div>
+    );
+  }
+
+  // ❌ kalau benar-benar belum login
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // Role tidak sesuai
+  // ❌ role tidak sesuai
   if (role && user?.role !== role) {
     return <Navigate to="/" replace />;
   }
