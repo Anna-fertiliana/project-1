@@ -18,7 +18,6 @@ export default function ProtectedRoute({
   // ✅ ambil dari localStorage
   const localToken = localStorage.getItem("token");
 
-  // ⏳ kalau redux belum keisi tapi localStorage ada → tunggu
   if (!token && localToken) {
     return (
       <div className="text-center mt-10">

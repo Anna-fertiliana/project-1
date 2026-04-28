@@ -93,11 +93,36 @@ A modern Library Web Application built with React, featuring authentication, boo
 
 ---
 
+## 👥 Role Access
+
+### User
+- Browse books
+- Borrow books
+- Return books
+- Add review
+
+### Admin
+- Manage books
+- Manage users
+- Manage borrow transactions
+
+## 📂 Folder Structure
+
+src/
+├── api/
+├── app/
+├── components/
+├── features/
+├── layout/
+├── pages/
+├── routes/
+└── utils/
+
 ## 📦 Installation
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/library-web.git
+git clone https://github.com/Anna-fertiliana/Project-1--Library-App.git
 
 # Go to project folder
 cd library-web
@@ -127,6 +152,12 @@ This project uses a backend API documented via Swagger.
 
 ---
 
+## 🔗 Backend API
+
+This frontend consumes REST API from:
+
+https://library-backend-production-b9cf.up.railway.app/api-swagger
+
 ## 🚀 Project Status
 
 - ✅ Authentication (Login & Register)
@@ -141,6 +172,15 @@ This project uses a backend API documented via Swagger.
 This project is actively maintained and open for improvements.
 
 ---
+
+## ⚠️ Error Handling
+
+- API request fallback
+- Empty state UI
+- Loading state
+- Form validation
+- Unauthorized redirect
+
 
 ## 🚀 Deployment
 

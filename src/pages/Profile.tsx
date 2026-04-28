@@ -109,38 +109,6 @@ export default function Profile() {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="border-t py-8 sm:py-10 text-center px-4">
-        <div className="flex justify-center items-center gap-2 mb-3">
-          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-600 rounded-full"></div>
-          <span className="font-semibold text-base sm:text-lg">
-            Booky
-          </span>
-        </div>
-
-        <p className="text-xs sm:text-sm text-gray-500 max-w-md mx-auto">
-          Discover inspiring stories & timeless knowledge,
-          ready to borrow anytime. Explore online or visit our
-          nearest library branch.
-        </p>
-
-        <div className="mt-6 text-xs sm:text-sm font-medium">
-          Follow on Social Media
-        </div>
-
-        <div className="flex justify-center gap-3 sm:gap-4 mt-4 text-gray-600">
-          {["f", "ig", "in", "t"].map((item, i) => (
-            <div
-              key={i}
-              className="w-8 h-8 border rounded-full flex items-center justify-center text-xs"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-
     </div>
   );
 }

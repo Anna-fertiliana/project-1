@@ -28,6 +28,9 @@ import AdminUserList from "./pages/admin/AdminUserList";
 import AdminBorrowedList from "./pages/admin/AdminBorrowedList";
 import AdminBookList from "./pages/admin/AdminBookList";
 import AdminEditBook from "./pages/admin/AdminEditBook";
+import AdminBookPreview from "./pages/admin/AdminBookPreview";
+import AdminCreateBook from "./pages/admin/AdminCreatedBook";
+
 
 function App() {
   const dispatch = useAppDispatch();
@@ -56,7 +59,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ================= MAIN LAYOUT ================= */}
+        {/* == MAIN LAYOUT == */}
         <Route element={<MainLayout />}>
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<Home />} />
@@ -124,7 +127,7 @@ function App() {
 
 
 
-        {/* ================= ADMIN AREA ================= */}
+        {/* == ADMIN AREA == */}
         <Route
           path="/admin"
           element={
@@ -136,10 +139,12 @@ function App() {
           <Route path="users" element={<AdminUserList />} />
           <Route path="borrowed" element={<AdminBorrowedList />} />
           <Route path="books" element={<AdminBookList />} />
+          <Route path="books/create" element={<AdminCreateBook />} />
           <Route path="books/edit/:id" element={<AdminEditBook />} />
+          <Route path="books/:id" element={<AdminBookPreview />} />
         </Route>
 
-        {/* ================= AUTH ================= */}
+        {/* == AUTH == */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

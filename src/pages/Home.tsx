@@ -1,6 +1,5 @@
 import Recommendation from "../components/Recommendation";
 import PopularAuthors from "../components/PopularAuthor";
-import Footer from "../components/Footer";
 
 export default function Home() {
   const categories = [
@@ -62,8 +61,6 @@ export default function Home() {
         <Recommendation />
         <PopularAuthors />
       </div>
-
-      <Footer />
     </div>
   );
 }
