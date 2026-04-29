@@ -7,49 +7,50 @@ export default function BorrowSuccess() {
   const { returnDate } = location.state || {};
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-10">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-md sm:shadow-lg p-8 text-center">
-
-        {/* Circle Icon */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-          <span className="text-white text-3xl sm:text-4xl">✓</span>
+    <div className="min-h-screen bg-gray-50 px-4 py-8 flex items-center justify-center">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-md sm:p-8 sm:shadow-lg">
+        {/* Success Icon */}
+        <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-600 shadow-md sm:h-24 sm:w-24">
+          <span className="text-3xl text-white sm:text-4xl">
+            ✓
+          </span>
         </div>
 
-        <h1 className="text-lg sm:text-xl font-semibold mb-2">
+        {/* Title */}
+        <h1 className="mb-2 text-lg font-semibold sm:text-xl">
           Borrowing Successful!
         </h1>
 
-        <p className="text-gray-600 text-sm sm:text-base mb-8">
+        {/* Description */}
+        <p className="mb-8 text-sm text-gray-600 sm:text-base">
           Your book has been successfully borrowed.
           {returnDate && (
             <>
               <br />
               Please return it by{" "}
-              <span className="text-red-500 font-medium">
+              <span className="font-medium text-red-500">
                 {returnDate}
               </span>
             </>
           )}
         </p>
 
+        {/* Buttons */}
         <div className="space-y-3">
           <button
             onClick={() => navigate("/borrowed")}
-            className="w-full bg-blue-600 text-white py-2.5 rounded-full 
-                       hover:bg-blue-700 transition font-medium"
+            className="w-full rounded-full bg-blue-600 py-3 text-sm font-medium text-white transition hover:bg-blue-700 sm:text-base"
           >
             See Borrowed List
           </button>
 
           <button
             onClick={() => navigate("/")}
-            className="w-full border border-gray-300 py-2.5 rounded-full 
-                       hover:bg-gray-100 transition text-sm"
+            className="w-full rounded-full border border-gray-300 py-3 text-sm transition hover:bg-gray-50 sm:text-base"
           >
             Back to Home
           </button>
         </div>
-
       </div>
     </div>
   );

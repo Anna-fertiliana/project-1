@@ -1,272 +1,194 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  useMutation,
   useQuery,
+  useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { axiosInstance } from "../../api/axios";
 
-export default function AdminCreateBook() {
+export default function AdminEditBook() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [form, setForm] = useState({
     title: "",
-    authorId: "",
-    categoryId: "",
-    totalCopies: "",
+    author: "",
+    category: "",
+    pages: "",
     description: "",
     coverImage: "",
   });
 
-  const [errors, setErrors] = useState<any>({});
-
-  /* == FETCH == */
-  const { data: authors } = useQuery({
-    queryKey: ["authors"],
+  /* ================= FETCH ================= */
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-book-detail", id],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/authors");
-      return res.data?.data?.authors || [];
+      const res = await axiosInstance.get(`/api/books/${id}`);
+      return res.data?.data;
     },
+    enabled: !!id,
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await axiosInstance.get("/api/categories");
-      return res.data?.data?.categories || [];
-    },
-  });
+  useEffect(() => {
+    if (data) {
+      setForm({
+        title: data.title || "",
+        author: data?.author?.name || "",
+        category: data?.category?.name || "",
+        pages: String(data.totalCopies || ""),
+        description: data.description || "",
+        coverImage: data.coverImage || "",
+      });
+    }
+  }, [data]);
 
-  /* == CREATE == */
-  const createMutation = useMutation({
+  /* ================= UPDATE ================= */
+  const updateMutation = useMutation({
     mutationFn: async () => {
-      const payload: any = {
-        title: form.title.trim(),
-        description: form.description.trim(),
-        coverImage: form.coverImage || null,
-      };
-
-      // hanya kirim kalau valid
-      if (form.authorId) payload.authorId = Number(form.authorId);
-      if (form.categoryId) payload.categoryId = Number(form.categoryId);
-      if (form.totalCopies)
-        payload.availableCopies = Number(form.totalCopies);
-
-      console.log("PAYLOAD:", payload);
-
-      return axiosInstance.post("/api/admin/books", payload);
-    },
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-books"] });
-      navigate("/admin/books?success=1");
-    },
-
-    onError: (err: any) => {
-      console.log("ERROR:", err?.response?.data);
-
-      setErrors({
-        global:
-          err?.response?.data?.message || "Invalid input data",
+      return axiosInstance.put(`/api/books/${id}`, {
+        title: form.title,
+        description: form.description,
+        coverImage: form.coverImage,
       });
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin-books"],
+      });
+      navigate("/admin/books");
+    },
   });
 
-  /* ================= HANDLER ================= */
   const handleChange = (e: any) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
-
-    setErrors({
-      ...errors,
-      [e.target.name]: "",
-      global: "",
-    });
   };
 
-  const handleSubmit = () => {
-    let newErrors: any = {};
-
-    if (!form.title.trim())
-      newErrors.title = "Title is required";
-
-    if (!form.authorId)
-      newErrors.authorId = "Author is required";
-
-    if (!form.categoryId)
-      newErrors.categoryId = "Category is required";
-
-    if (!form.totalCopies || Number(form.totalCopies) <= 0)
-      newErrors.totalCopies = "Must be greater than 0";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    createMutation.mutate();
-  };
+  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-[#F6F7FB] flex justify-center py-10">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm p-8 space-y-6">
-
+    <div className="min-h-screen bg-gray-100 flex justify-center py-10">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow p-8 space-y-6">
+        
         {/* HEADER */}
-        <div className="flex items-center gap-2 text-gray-500">
+        <div className="flex items-center gap-2 text-gray-600">
           <button onClick={() => navigate(-1)}>←</button>
-          <h1 className="text-lg font-semibold text-gray-800">
-            Add Book
-          </h1>
+          <h1 className="text-lg font-semibold">Edit Book</h1>
         </div>
 
-        {/* GLOBAL ERROR */}
-        {errors.global && (
-          <div className="bg-red-50 text-red-500 text-sm px-4 py-2 rounded-lg">
-            {errors.global}
-          </div>
-        )}
-
         {/* TITLE */}
-        <div className="space-y-1">
+        <div>
           <label className="text-sm text-gray-500">Title</label>
           <input
             name="title"
             value={form.title}
             onChange={handleChange}
-            className={`w-full px-4 py-2.5 border rounded-xl bg-gray-50 ${
-              errors.title ? "border-red-400" : ""
-            }`}
+            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
           />
-          {errors.title && (
-            <p className="text-xs text-red-500">{errors.title}</p>
-          )}
         </div>
 
         {/* AUTHOR */}
-        <div className="space-y-1">
+        <div>
           <label className="text-sm text-gray-500">Author</label>
-          <select
-            name="authorId"
-            value={form.authorId}
-            onChange={handleChange}
-            className={`w-full px-4 py-2.5 border rounded-xl bg-gray-50 ${
-              errors.authorId ? "border-red-400" : ""
-            }`}
-          >
-            <option value="">Select Author</option>
-            {authors?.map((a: any) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-          {errors.authorId && (
-            <p className="text-xs text-red-500">
-              {errors.authorId}
-            </p>
-          )}
+          <input
+            value={form.author}
+            disabled
+            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100"
+          />
         </div>
 
         {/* CATEGORY */}
-        <div className="space-y-1">
+        <div>
           <label className="text-sm text-gray-500">Category</label>
-          <select
-            name="categoryId"
-            value={form.categoryId}
-            onChange={handleChange}
-            className={`w-full px-4 py-2.5 border rounded-xl bg-gray-50 ${
-              errors.categoryId ? "border-red-400" : ""
-            }`}
-          >
-            <option value="">Select Category</option>
-            {categories?.map((c: any) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          {errors.categoryId && (
-            <p className="text-xs text-red-500">
-              {errors.categoryId}
-            </p>
-          )}
+          <input
+            value={form.category}
+            disabled
+            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100"
+          />
         </div>
 
-        {/* STOCK */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-500">
-            Stock
-          </label>
+        {/* PAGES */}
+        <div>
+          <label className="text-sm text-gray-500">Number of Pages</label>
           <input
-            name="totalCopies"
-            type="number"
-            value={form.totalCopies}
-            onChange={handleChange}
-            className={`w-full px-4 py-2.5 border rounded-xl bg-gray-50 ${
-              errors.totalCopies ? "border-red-400" : ""
-            }`}
+            value={form.pages}
+            disabled
+            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100"
           />
-          {errors.totalCopies && (
-            <p className="text-xs text-red-500">
-              {errors.totalCopies}
-            </p>
-          )}
         </div>
 
         {/* DESCRIPTION */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-500">
-            Description
-          </label>
+        <div>
+          <label className="text-sm text-gray-500">Description</label>
           <textarea
             name="description"
             rows={4}
             value={form.description}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 border rounded-xl bg-gray-50"
+            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
           />
         </div>
 
-        {/* IMAGE */}
+        {/* COVER IMAGE */}
         <div>
-          <label className="text-sm text-gray-500">
-            Cover Image
-          </label>
+          <label className="text-sm text-gray-500">Cover Image</label>
 
-          <div className="mt-2 border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center gap-3">
+          <div className="mt-2 border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-4">
+            
             {form.coverImage ? (
               <img
                 src={form.coverImage}
-                className="h-32 object-contain"
+                alt="cover"
+                className="h-40 object-contain"
               />
             ) : (
-              <p className="text-gray-400 text-sm text-center">
-                Paste image URL
-              </p>
+              <p className="text-gray-400 text-sm">No Image</p>
             )}
 
-            <input
-              type="text"
-              placeholder="https://..."
-              name="coverImage"
-              value={form.coverImage}
-              onChange={handleChange}
-              className="px-3 py-2 border rounded-lg text-sm w-60"
-            />
+            <div className="flex gap-3">
+              <input
+                type="text"
+                placeholder="Paste image URL..."
+                name="coverImage"
+                value={form.coverImage}
+                onChange={handleChange}
+                className="px-3 py-2 border rounded-lg text-sm"
+              />
+
+              <button
+                type="button"
+                className="px-3 py-2 text-sm border rounded-lg"
+              >
+                Change Image
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({ ...form, coverImage: "" })
+                }
+                className="px-3 py-2 text-sm text-red-500 border rounded-lg"
+              >
+                Delete Image
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-400">
+              PNG or JPG (max. 5mb)
+            </p>
           </div>
         </div>
 
-        {/* BUTTON */}
+        {/* SAVE BUTTON */}
         <button
-          onClick={handleSubmit}
-          disabled={createMutation.isPending}
-          className="w-full bg-[#2563EB] text-white py-3 rounded-full font-medium hover:bg-blue-700 disabled:opacity-50"
+          onClick={() => updateMutation.mutate()}
+          className="w-full bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700"
         >
-          {createMutation.isPending ? "Saving..." : "Save"}
+          {updateMutation.isPending ? "Saving..." : "Save"}
         </button>
       </div>
     </div>

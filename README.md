@@ -158,6 +158,58 @@ This frontend consumes REST API from:
 
 https://library-backend-production-b9cf.up.railway.app/api-swagger
 
+---
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+
+![Home Page](./screenshots/home.png)
+
+Landing page utama dengan banner “Welcome to Booky” serta navigasi dan search bar.
+
+---
+
+### 📚 Recommendation Section
+
+![Recommendation](./screenshots/recommendation.png)
+
+Menampilkan daftar buku rekomendasi dalam bentuk card dengan rating dan author.
+
+---
+
+### 📖 Book Detail Page
+
+![Book Detail](./screenshots/book-detail.png)
+
+Halaman detail buku berisi:
+- Cover buku
+- Deskripsi
+- Rating & reviews
+- Tombol **Add to Cart** dan **Borrow**
+
+---
+
+### 👤 Author Page
+
+![Author Page](./screenshots/author.png)
+
+Menampilkan informasi author serta koleksi buku yang ditulis oleh author tersebut.
+
+---
+
+### 🛒 Checkout / Borrow Page
+
+![Checkout](./screenshots/checkout.png)
+
+Halaman peminjaman buku dengan fitur:
+- Informasi user
+- Daftar buku yang dipinjam
+- Pilihan durasi peminjaman
+- Perhitungan tanggal kembali otomatis
+
+---
+
 ## 🚀 Project Status
 
 - ✅ Authentication (Login & Register)

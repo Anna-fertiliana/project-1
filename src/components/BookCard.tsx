@@ -16,8 +16,8 @@ export default function BookCard({
 }: BookCardProps) {
   return (
     <Link to={`/books/${book.id}`}>
-      <div className="border rounded-lg p-4 hover:shadow-md transition cursor-pointer bg-white">
-        <div className="h-40 rounded mb-3 overflow-hidden bg-gray-100 flex items-center justify-center">
+      <div className="bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition cursor-pointer">
+        <div className="h-36 sm:h-48 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
           {book.coverImage ? (
             <img
               src={book.coverImage}
@@ -25,17 +25,17 @@ export default function BookCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-gray-400 text-sm">
+            <span className="text-xs text-gray-400">
               No Image
             </span>
           )}
         </div>
 
-        <h2 className="font-semibold text-sm line-clamp-2">
+        <h2 className="mt-3 text-sm font-semibold line-clamp-2 min-h-[40px]">
           {book.title || "Untitled"}
         </h2>
 
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-500 mt-1 line-clamp-1">
           {book.author?.name || "Unknown Author"}
         </p>
       </div>

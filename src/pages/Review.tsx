@@ -3,21 +3,26 @@ import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../api/axios";
 import dayjs from "dayjs";
 import { Star } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 
 interface Review {
   id: number;
   star: number;
   comment: string;
   createdAt: string;
-  user?: {
-    name?: string;
+  book?: {
+    title?: string;
+    coverImage?: string;
+    author?: {
+      name?: string;
+    };
+    category?: {
+      name?: string;
+    };
   };
 }
 
 export default function Reviews() {
-  const { bookId } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
@@ -26,29 +31,23 @@ export default function Reviews() {
     isLoading,
     isError,
   } = useQuery<Review[]>({
-    queryKey: ["reviews", bookId],
+    queryKey: ["my-reviews"],
     queryFn: async () => {
-  if (bookId) {
-    const res = await axiosInstance.get(
-      `/api/reviews/book/${bookId}`
-    );
-    return res.data?.data?.reviews || [];
-  } else {
-    const res = await axiosInstance.get(`/api/reviews`);
-    return res.data?.data || [];
-  }
-},
-enabled: true,
+      const res = await axiosInstance.get("/api/me/reviews");
+
+      // 🔥 IMPORTANT FIX
+      return res.data?.data?.reviews || [];
+    },
   });
 
-
+  // 🔍 SEARCH FILTER
   const filteredReviews = reviews.filter((review) =>
     review.comment
       ?.toLowerCase()
       .includes(search.toLowerCase())
   );
 
-  // Loading
+  // ⏳ LOADING
   if (isLoading) {
     return (
       <div className="text-center mt-20 text-sm text-gray-500">
@@ -57,34 +56,35 @@ enabled: true,
     );
   }
 
-  // Error
+  // ❌ ERROR
   if (isError) {
     return (
-      <div className="text-center mt-20 text-red-500 text-sm">
+      <div className="text-center mt-20 text-sm text-red-500">
         Failed to load reviews.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 sm:py-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg sm:text-xl font-semibold">
+
+        {/* HEADER */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold sm:text-xl">
             Reviews
           </h2>
 
           <button
             onClick={() => navigate("/")}
-            className="mb-4 text-sm text-blue-600 hover:underline"
+            className="text-sm text-blue-600 hover:underline"
           >
             ← Back to Home
           </button>
         </div>
 
-        {/* Search */}
-        <div className="mb-6 sm:mb-8">
+        {/* SEARCH */}
+        <div className="mb-6">
           <input
             type="text"
             placeholder="Search reviews..."
@@ -92,51 +92,83 @@ enabled: true,
             onChange={(e) =>
               setSearch(e.target.value)
             }
-            className="w-full sm:w-80 border rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-full border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {/* Empty */}
+        {/* EMPTY */}
         {filteredReviews.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center text-sm text-gray-400 shadow-sm">
+          <div className="rounded-2xl bg-white p-8 text-center text-sm text-gray-400 shadow-sm">
             No reviews found.
           </div>
         ) : (
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-6">
             {filteredReviews.map((review) => (
               <div
                 key={review.id}
-                className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6"
+                className="bg-white rounded-2xl shadow-sm p-5"
               >
-                {/* Date */}
-                <p className="text-xs text-gray-500 mb-2">
+                {/* DATE */}
+                <p className="text-xs text-gray-400 mb-4">
                   {dayjs(review.createdAt).format(
                     "DD MMMM YYYY, HH:mm"
                   )}
                 </p>
 
-                {/* User */}
-                <p className="text-sm font-medium text-gray-700 mb-2">
-                  {review.user?.name || "Anonymous"}
-                </p>
+                {/* TOP */}
+                <div className="flex gap-4">
+                  {/* COVER */}
+                  <img
+                    src={
+                      review.book?.coverImage ||
+                      "/placeholder.png"
+                    }
+                    alt="book"
+                    className="w-14 h-20 object-cover rounded-lg"
+                  />
 
-                {/* Stars */}
-                <div className="flex gap-1 mb-3">
+                  {/* INFO */}
+                  <div className="flex-1">
+                    {/* CATEGORY */}
+                    <span className="text-[10px] px-2 py-1 bg-gray-100 rounded-md text-gray-500">
+                      {review.book?.category?.name ||
+                        "Category"}
+                    </span>
+
+                    {/* TITLE */}
+                    <p className="font-semibold text-sm mt-1">
+                      {review.book?.title ||
+                        "Book Name"}
+                    </p>
+
+                    {/* AUTHOR */}
+                    <p className="text-xs text-gray-400">
+                      {review.book?.author?.name ||
+                        "Author name"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* DIVIDER */}
+                <div className="border-t my-4" />
+
+                {/* STARS */}
+                <div className="flex gap-1 mb-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      size={16}
+                      size={14}
                       className={
                         star <= review.star
-                          ? "text-yellow-400 fill-yellow-400"
+                          ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-300"
                       }
                     />
                   ))}
                 </div>
 
-                {/* Comment */}
-                <p className="text-sm text-gray-600">
+                {/* COMMENT */}
+                <p className="text-sm text-gray-600 leading-relaxed">
                   {review.comment}
                 </p>
               </div>

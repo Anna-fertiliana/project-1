@@ -1,30 +1,30 @@
 export default function Footer() {
   return (
-    <footer className="mt-16 sm:mt-20 lg:mt-24 border-t pt-10 sm:pt-14 lg:pt-16 pb-8 sm:pb-10 text-center bg-white">
-      
+    <footer className="mt-16 border-t bg-white px-4 pt-10 pb-8 text-center sm:mt-20 sm:pt-14 sm:pb-10 lg:mt-24 lg:pt-16">
       {/* Logo */}
-      <div className="flex justify-center items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+      <div className="mb-4 flex items-center justify-center gap-2 sm:gap-3">
         <img
           src="/logo.svg"
           alt="Booky Logo"
-          className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8"
+          className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8"
         />
-        <h3 className="text-lg sm:text-xl font-semibold">
+        <h3 className="text-lg font-semibold sm:text-xl">
           Booky
         </h3>
       </div>
 
       {/* Description */}
-      <p className="text-gray-600 text-xs sm:text-sm max-w-sm sm:max-w-xl mx-auto mb-6 sm:mb-8 px-4">
+      <p className="mx-auto mb-6 max-w-xs text-xs leading-relaxed text-gray-600 sm:mb-8 sm:max-w-xl sm:text-sm">
         Discover inspiring stories & timeless knowledge, ready to borrow anytime.
         Explore online or visit our nearest library branch.
       </p>
 
-      {/* Social Media */}
-      <div className="mb-3 sm:mb-4 text-xs sm:text-sm font-medium">
+      {/* Social title */}
+      <p className="mb-4 text-xs font-medium sm:text-sm">
         Follow on Social Media
-      </div>
+      </p>
 
+      {/* Social icons */}
       <div className="flex justify-center gap-3 sm:gap-4">
         {[
           { name: "Facebook", icon: "/fb.svg" },
@@ -35,17 +35,17 @@ export default function Footer() {
           <a
             key={social.name}
             href="#"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center hover:bg-gray-100 transition"
+            aria-label={social.name}
+            className="flex h-9 w-9 items-center justify-center rounded-full border transition hover:bg-gray-100 sm:h-10 sm:w-10"
           >
             <img
               src={social.icon}
               alt={social.name}
-              className="w-4 h-4 sm:w-5 sm:h-5"
+              className="h-4 w-4 sm:h-5 sm:w-5"
             />
           </a>
         ))}
       </div>
-
     </footer>
   );
 }

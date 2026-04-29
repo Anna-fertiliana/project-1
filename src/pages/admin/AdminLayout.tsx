@@ -10,42 +10,49 @@ export default function AdminLayout() {
       : "bg-gray-100 text-gray-700 hover:bg-gray-200";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Navbar */}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      
+      {/* 🔝 TOP NAVBAR */}
       <AdminNavbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          <Link
-            to="/admin/borrowed"
-            className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeClass(
-              "/admin/borrowed"
-            )}`}
-          >
-            Borrowed List
-          </Link>
+      {/* 🔽 CONTENT */}
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
-          <Link
-            to="/admin/users"
-            className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeClass(
-              "/admin/users"
-            )}`}
-          >
-            Users
-          </Link>
+        {/* 🔥 MOBILE-FIRST TABS (SCROLLABLE) */}
+        <div className="mb-6 overflow-x-auto">
+          <div className="flex gap-2 min-w-max">
+            
+            <Link
+              to="/admin/borrowed"
+              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${activeClass(
+                "/admin/borrowed"
+              )}`}
+            >
+              Borrowed
+            </Link>
 
-          <Link
-            to="/admin/books"
-            className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeClass(
-              "/admin/books"
-            )}`}
-          >
-            Book List
-          </Link>
+            <Link
+              to="/admin/users"
+              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${activeClass(
+                "/admin/users"
+              )}`}
+            >
+              Users
+            </Link>
+
+            <Link
+              to="/admin/books"
+              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition ${activeClass(
+                "/admin/books"
+              )}`}
+            >
+              Books
+            </Link>
+
+          </div>
         </div>
 
-        {/* Page content */}
+        {/* 📄 PAGE CONTENT */}
         <Outlet />
       </div>
     </div>

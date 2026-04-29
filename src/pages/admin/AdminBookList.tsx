@@ -5,14 +5,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { axiosInstance } from "../../api/axios";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function AdminBookList() {
   const [filter, setFilter] = useState("ALL");
   const [search, setSearch] = useState("");
-
-  // ✅ modal state
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<number | null>(null);
 
@@ -57,47 +54,47 @@ export default function AdminBookList() {
   }, [books, filter, search]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* TITLE */}
-      <h1 className="text-lg font-semibold mb-4">
-        Book List
-      </h1>
+    <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-lg sm:text-xl font-semibold">
+          Book List
+        </h1>
+
+        <button
+          onClick={() => navigate("/admin/books/create")}
+          className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 text-white rounded-full text-sm hover:bg-blue-700 transition"
+        >
+          Add Book
+        </button>
+      </div>
 
       {isSuccess && (
-        <div className="mb-4 flex justify-end">
-          <div className="bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow">
+        <div className="mb-4">
+          <div className="inline-block bg-green-500 text-white text-xs px-4 py-2 rounded-full shadow">
             Add Success
           </div>
         </div>
       )}
 
-      {/* ADD BUTTON */}
-      <button
-          onClick={() => navigate("/admin/books/create")}
-          className="mb-4 px-5 py-2 bg-[#2563EB] text-white rounded-full text-sm hover:bg-blue-700"
-        >
-          Add Book
-        </button>
-
-      {/* SEARCH */}
+      {/* Search */}
       <div className="mb-4">
         <input
           type="text"
           placeholder="Search book"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-80 bg-gray-100 rounded-full px-4 py-2 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full sm:w-80 bg-gray-100 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* FILTER */}
-      <div className="flex gap-2 mb-6 flex-wrap text-xs">
+      {/* Filter */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
         {["ALL", "AVAILABLE", "OUT_OF_STOCK"].map((item) => (
           <button
             key={item}
             onClick={() => setFilter(item)}
-            className={`px-4 py-1.5 rounded-full transition ${
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-xs transition ${
               filter === item
                 ? "bg-blue-100 text-blue-600"
                 : "bg-gray-100 text-gray-500"
@@ -108,36 +105,20 @@ export default function AdminBookList() {
         ))}
       </div>
 
-      {/* CONTENT */}
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-white border rounded-xl p-4 animate-pulse flex gap-4"
-            >
-              <div className="w-14 h-20 bg-gray-200 rounded-md" />
-              <div className="flex-1 space-y-2">
-                <div className="w-24 h-3 bg-gray-200 rounded" />
-                <div className="w-40 h-4 bg-gray-200 rounded" />
-                <div className="w-32 h-3 bg-gray-200 rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredBooks.map((book: any) => (
-            <div
-              key={book.id}
-              className="bg-white border rounded-xl p-4 flex justify-between items-center"
-            >
-              {/* LEFT */}
+      {/* Content */}
+      <div className="space-y-4">
+        {filteredBooks.map((book: any) => (
+          <div
+            key={book.id}
+            className="bg-white border rounded-2xl p-4"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+              {/* Left */}
               <div className="flex gap-4">
                 <img
                   src={book.coverImage || "/book-placeholder.png"}
                   alt={book.title}
-                  className="w-14 h-20 object-cover rounded-md"
+                  className="w-16 h-24 object-cover rounded-lg"
                 />
 
                 <div>
@@ -145,7 +126,7 @@ export default function AdminBookList() {
                     {book.category?.name}
                   </span>
 
-                  <h2 className="text-sm font-medium mt-1">
+                  <h2 className="text-sm font-medium mt-2">
                     {book.title}
                   </h2>
 
@@ -159,11 +140,11 @@ export default function AdminBookList() {
                 </div>
               </div>
 
-              {/* ACTION */}
-              <div className="flex gap-2">
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 sm:justify-end">
                 <button
                   onClick={() => navigate(`/admin/books/${book.id}`)}
-                  className="px-3 py-1 text-xs border rounded-full hover:bg-gray-100"
+                  className="px-3 py-2 text-xs border rounded-full hover:bg-gray-100"
                 >
                   Preview
                 </button>
@@ -172,7 +153,7 @@ export default function AdminBookList() {
                   onClick={() =>
                     navigate(`/admin/books/edit/${book.id}`)
                   }
-                  className="px-3 py-1 text-xs border rounded-full hover:bg-gray-100"
+                  className="px-3 py-2 text-xs border rounded-full hover:bg-gray-100"
                 >
                   Edit
                 </button>
@@ -182,47 +163,43 @@ export default function AdminBookList() {
                     setSelectedBookId(book.id);
                     setIsDeleteOpen(true);
                   }}
-                  className="px-3 py-1 text-xs text-red-500 border border-red-300 rounded-full hover:bg-red-50"
+                  className="px-3 py-2 text-xs text-red-500 border border-red-300 rounded-full hover:bg-red-50"
                 >
                   Delete
                 </button>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
 
-          {filteredBooks.length === 0 && (
-            <div className="text-center text-gray-400 py-10 text-sm">
-              No books found
-            </div>
-          )}
-        </div>
-      )}
+        {!isLoading && filteredBooks.length === 0 && (
+          <div className="text-center text-gray-400 py-10 text-sm">
+            No books found
+          </div>
+        )}
+      </div>
 
-      {/* ================= DELETE MODAL ================= */}
+      {/* Delete Modal */}
       {isDeleteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-
-          {/* OVERLAY */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/40"
             onClick={() => setIsDeleteOpen(false)}
           />
 
-          {/* MODAL */}
-          <div className="relative bg-white w-[360px] rounded-2xl shadow-xl px-6 py-5 animate-[fadeIn_0.2s_ease]">
-
-            <h2 className="text-base font-semibold text-gray-800">
+          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h2 className="text-base font-semibold">
               Delete Data
             </h2>
 
-            <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+            <p className="mt-2 text-sm text-gray-500">
               Once deleted, you won’t be able to recover this data.
             </p>
 
-            <div className="flex justify-end gap-3 mt-6">
+            <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setIsDeleteOpen(false)}
-                className="px-5 py-2 rounded-full border border-gray-300 text-gray-600 text-sm hover:bg-gray-100 transition"
+                className="flex-1 rounded-full border px-4 py-2 text-sm"
               >
                 Cancel
               </button>
@@ -233,7 +210,7 @@ export default function AdminBookList() {
                     deleteMutation.mutate(selectedBookId);
                   }
                 }}
-                className="px-5 py-2 rounded-full bg-[#E11D48] text-white text-sm font-medium hover:bg-pink-700 transition"
+                className="flex-1 rounded-full bg-red-600 px-4 py-2 text-sm text-white"
               >
                 {deleteMutation.isPending
                   ? "Deleting..."

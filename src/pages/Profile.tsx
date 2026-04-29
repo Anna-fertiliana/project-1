@@ -15,27 +15,25 @@ export default function Profile() {
     }
 
     if (tab === "reviews") {
-      navigate("/reviews/16");
+      navigate("/reviews");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50">
+      <div className="px-4 py-6 md:px-6 md:py-8">
+        <div className="mx-auto max-w-3xl">
 
-      {/* Content */}
-      <div className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-3xl mx-auto">
-
-          {/* Tabs */}
-          <div className="flex justify-center mb-8">
-            <div className="bg-gray-100 rounded-full p-1 flex gap-1 sm:gap-2 overflow-x-auto">
+          {/* ================= TABS ================= */}
+          <div className="mb-6 flex justify-center">
+            <div className="flex gap-1 overflow-x-auto rounded-full bg-gray-100 p-1">
               {["profile", "borrowed", "reviews"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => handleTab(tab)}
-                  className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm whitespace-nowrap transition ${
+                  className={`whitespace-nowrap rounded-full px-4 py-2 text-xs transition md:px-6 md:text-sm ${
                     activeTab === tab
-                      ? "bg-white shadow text-black"
+                      ? "bg-white text-black shadow"
                       : "text-gray-500"
                   }`}
                 >
@@ -49,63 +47,57 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Title */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg sm:text-xl font-semibold">
+          {/* ================= HEADER ================= */}
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="text-lg font-semibold md:text-xl">
               Profile
             </h2>
 
-          <button
-            onClick={() => navigate("/")}
-            className="mb-4 text-sm text-blue-600 hover:underline"
-          >
-            ← Back to Home
-          </button>
+            <button
+              onClick={() => navigate("/")}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              ← Back
+            </button>
           </div>
 
-          {/* Card */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-6 sm:p-8 w-full">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          {/* ================= CARD ================= */}
+          <div className="w-full rounded-2xl bg-white p-5 shadow-sm md:p-8">
 
-              {/* Avatar */}
+            {/* 🔥 FIXED HEADER PROFILE */}
+            <div className="flex items-center gap-4 mb-6">
               <img
                 src="/profile.svg"
                 alt="Profile"
-                className="w-20 h-20 sm:w-16 sm:h-16 rounded-full object-cover"
+                className="h-16 w-16 rounded-full object-cover"
               />
 
-              {/* Info */}
-              <div className="flex-1 text-sm w-full">
-
-                <div className="flex justify-between mb-3">
-                  <span className="text-gray-500">Name</span>
-                  <span className="font-medium text-right">
-                    {user?.name || "John Doe"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between mb-3">
-                  <span className="text-gray-500">Email</span>
-                  <span className="font-medium text-right">
-                    {user?.email || "johndoe@email.com"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between mb-6">
-                  <span className="text-gray-500">
-                    Nomor Handphone
-                  </span>
-                  <span className="font-medium text-right">
-                    {user?.phone || "081234567890"}
-                  </span>
-                </div>
-
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-full text-sm font-medium transition">
-                  Update Profile
-                </button>
-
+              <div>
+                <h3 className="font-semibold text-lg">
+                  {user?.name || "John Doe"}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {user?.email || "johndoe@email.com"}
+                </p>
               </div>
             </div>
+
+            {/* ================= INFO ================= */}
+            <div className="text-sm">
+              <div className="mb-4 flex justify-between">
+                <span className="text-gray-500">
+                  Phone
+                </span>
+                <span className="font-medium">
+                  {user?.phone || "081234567890"}
+                </span>
+              </div>
+            </div>
+
+            {/* BUTTON */}
+            <button className="w-full mt-6 rounded-full bg-blue-600 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700">
+              Update Profile
+            </button>
           </div>
         </div>
       </div>

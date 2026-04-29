@@ -21,7 +21,6 @@ export default function AdminEditBook() {
     coverImage: "",
   });
 
-  /* ================= FETCH ================= */
   const { data, isLoading } = useQuery({
     queryKey: ["admin-book-detail", id],
     queryFn: async () => {
@@ -44,7 +43,6 @@ export default function AdminEditBook() {
     }
   }, [data]);
 
-  /* ================= UPDATE ================= */
   const updateMutation = useMutation({
     mutationFn: async () => {
       return axiosInstance.put(`/api/books/${id}`, {
@@ -61,107 +59,111 @@ export default function AdminEditBook() {
     },
   });
 
-  const handleChange = (e: any) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
   };
 
-  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
+  if (isLoading) {
+    return (
+      <p className="text-center py-12 text-sm text-gray-500">
+        Loading...
+      </p>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center py-10">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow p-8 space-y-6">
-        
-        {/* HEADER */}
-        <div className="flex items-center gap-2 text-gray-600">
-          <button onClick={() => navigate(-1)}>←</button>
-          <h1 className="text-lg font-semibold">Edit Book</h1>
+    <div className="min-h-screen bg-gray-100 px-4 py-6 sm:py-10">
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-sm p-5 sm:p-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100"
+          >
+            ←
+          </button>
+
+          <h1 className="text-lg sm:text-xl font-semibold">
+            Edit Book
+          </h1>
         </div>
 
-        {/* TITLE */}
-        <div>
-          <label className="text-sm text-gray-500">Title</label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
-          />
-        </div>
+        <Field
+          label="Title"
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+        />
 
-        {/* AUTHOR */}
-        <div>
-          <label className="text-sm text-gray-500">Author</label>
-          <input
-            value={form.author}
-            disabled
-            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100"
-          />
-        </div>
+        <Field
+          label="Author"
+          value={form.author}
+          disabled
+        />
 
-        {/* CATEGORY */}
-        <div>
-          <label className="text-sm text-gray-500">Category</label>
-          <input
-            value={form.category}
-            disabled
-            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100"
-          />
-        </div>
+        <Field
+          label="Category"
+          value={form.category}
+          disabled
+        />
 
-        {/* PAGES */}
-        <div>
-          <label className="text-sm text-gray-500">Number of Pages</label>
-          <input
-            value={form.pages}
-            disabled
-            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100"
-          />
-        </div>
+        <Field
+          label="Number of Pages"
+          value={form.pages}
+          disabled
+        />
 
-        {/* DESCRIPTION */}
+        {/* Description */}
         <div>
-          <label className="text-sm text-gray-500">Description</label>
+          <label className="text-sm text-gray-500">
+            Description
+          </label>
           <textarea
             name="description"
             rows={4}
             value={form.description}
             onChange={handleChange}
-            className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
+            className="w-full mt-1 px-4 py-3 border rounded-xl bg-gray-50"
           />
         </div>
 
-        {/* COVER IMAGE */}
+        {/* Cover */}
         <div>
-          <label className="text-sm text-gray-500">Cover Image</label>
+          <label className="text-sm text-gray-500">
+            Cover Image
+          </label>
 
-          <div className="mt-2 border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center gap-4">
-            
+          <div className="mt-2 border-2 border-dashed rounded-2xl p-5 flex flex-col items-center gap-4">
             {form.coverImage ? (
               <img
                 src={form.coverImage}
                 alt="cover"
-                className="h-40 object-contain"
+                className="h-40 object-contain rounded-lg"
               />
             ) : (
-              <p className="text-gray-400 text-sm">No Image</p>
+              <p className="text-sm text-gray-400">
+                No Image
+              </p>
             )}
 
-            <div className="flex gap-3">
-              <input
-                type="text"
-                placeholder="Paste image URL..."
-                name="coverImage"
-                value={form.coverImage}
-                onChange={handleChange}
-                className="px-3 py-2 border rounded-lg text-sm"
-              />
+            <input
+              type="text"
+              name="coverImage"
+              value={form.coverImage}
+              onChange={handleChange}
+              placeholder="Paste image URL..."
+              className="w-full px-4 py-3 border rounded-xl text-sm"
+            />
 
+            <div className="w-full flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
-                className="px-3 py-2 text-sm border rounded-lg"
+                className="flex-1 px-4 py-2 border rounded-xl text-sm hover:bg-gray-50"
               >
                 Change Image
               </button>
@@ -169,9 +171,12 @@ export default function AdminEditBook() {
               <button
                 type="button"
                 onClick={() =>
-                  setForm({ ...form, coverImage: "" })
+                  setForm({
+                    ...form,
+                    coverImage: "",
+                  })
                 }
-                className="px-3 py-2 text-sm text-red-500 border rounded-lg"
+                className="flex-1 px-4 py-2 border border-red-300 text-red-500 rounded-xl text-sm hover:bg-red-50"
               >
                 Delete Image
               </button>
@@ -183,7 +188,7 @@ export default function AdminEditBook() {
           </div>
         </div>
 
-        {/* SAVE BUTTON */}
+        {/* Save */}
         <button
           onClick={() => updateMutation.mutate()}
           className="w-full bg-blue-600 text-white py-3 rounded-full hover:bg-blue-700"
@@ -191,6 +196,29 @@ export default function AdminEditBook() {
           {updateMutation.isPending ? "Saving..." : "Save"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  disabled,
+  ...props
+}: any) {
+  return (
+    <div>
+      <label className="text-sm text-gray-500">
+        {label}
+      </label>
+      <input
+        {...props}
+        disabled={disabled}
+        className={`w-full mt-1 px-4 py-3 border rounded-xl ${
+          disabled
+            ? "bg-gray-100 text-gray-500"
+            : "bg-gray-50"
+        }`}
+      />
     </div>
   );
 }

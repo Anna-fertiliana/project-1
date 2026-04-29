@@ -34,40 +34,36 @@ export default function AuthorDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 sm:py-8">
       <div className="max-w-6xl mx-auto">
-
-        {/* ================= Author Header ================= */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8 mb-10">
-
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
-
+        {/* Header */}
+        <div className="bg-white rounded-3xl shadow-sm p-5 sm:p-8 mb-8">
+          <div className="flex flex-col items-center text-center gap-4 sm:flex-row sm:items-start sm:text-left sm:gap-6">
             <img
               src={author?.avatar || "/profile.svg"}
               alt={author?.name}
-              className="w-24 h-24 rounded-full object-cover shadow-sm"
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover shadow-sm"
             />
 
             <div className="flex-1">
-              <h2 className="text-xl sm:text-2xl font-semibold">
+              <h2 className="text-lg sm:text-2xl font-semibold">
                 {author?.name || "Unknown Author"}
               </h2>
 
-              <div className="mt-2 flex justify-center sm:justify-start items-center gap-2 text-sm text-gray-500">
+              <div className="mt-2 flex items-center justify-center sm:justify-start gap-2 text-sm text-gray-500">
                 <img
                   src="/book-icon.svg"
-                  alt="book icon"
+                  alt="book"
                   className="w-4 h-4"
                 />
                 <span>{books.length} Books</span>
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* ================= Book Section ================= */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Section title */}
+        <div className="flex items-center justify-between mb-5">
           <h1 className="text-lg sm:text-2xl font-semibold">
             Book Collection
           </h1>
@@ -77,24 +73,23 @@ export default function AuthorDetail() {
           </span>
         </div>
 
+        {/* Empty state */}
         {books.length === 0 ? (
-          <div className="bg-white rounded-2xl p-10 text-center text-sm text-gray-500 shadow-sm">
+          <div className="bg-white rounded-3xl p-8 text-center text-sm text-gray-500 shadow-sm">
             This author has no published books yet.
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-6">
             {books.map((book: any) => (
               <Link
                 to={`/books/${book.id}`}
                 key={book.id}
               >
-                <div className="bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition overflow-hidden">
-
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition">
                   <img
                     src={book.coverImage}
                     alt={book.title}
-                    className="w-full h-44 sm:h-52 lg:h-60 object-cover"
+                    className="w-full h-40 sm:h-52 lg:h-60 object-cover"
                   />
 
                   <div className="p-3 sm:p-4">
@@ -110,11 +105,9 @@ export default function AuthorDetail() {
                       ⭐ {book.rating ?? 0}
                     </div>
                   </div>
-
                 </div>
               </Link>
             ))}
-
           </div>
         )}
       </div>

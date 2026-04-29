@@ -30,17 +30,17 @@ const MainLayout = () => {
     (!isAdminUser || viewMode === "USER");
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* NAVBAR */}
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50">
+      {/* Navbar */}
       {showAdminNavbar && <AdminNavbar />}
       {showUserNavbar && <Navbar />}
 
-      {/* PAGE CONTENT */}
+      {/* Page Content */}
       <main className="flex-1">
         <Outlet />
       </main>
 
-      {/* FOOTER */}
+      {/* Footer */}
       {showFooter && <Footer />}
     </div>
   );

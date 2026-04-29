@@ -57,38 +57,36 @@ export default function AdminBorrowedList() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-10 text-sm text-gray-500">
+      <div className="py-12 text-center text-sm text-gray-500">
         Loading...
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* TITLE */}
+    <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
       <h1 className="text-xl font-semibold mb-6">
         Borrowed List
       </h1>
 
-      {/* SEARCH */}
+      {/* Search */}
       <div className="mb-4">
         <input
           type="text"
           placeholder="Search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full sm:w-80 bg-gray-100 rounded-full px-4 py-2 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full sm:w-80 bg-gray-100 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* FILTER */}
-      <div className="flex gap-2 mb-8 flex-wrap">
+      {/* Filter */}
+      <div className="flex gap-2 overflow-x-auto pb-2 mb-6">
         {["all", "borrowed", "returned", "overdue"].map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-4 py-1.5 rounded-full text-xs capitalize transition ${
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-xs capitalize transition ${
               filter === status
                 ? "bg-blue-100 text-blue-600"
                 : "bg-gray-100 text-gray-500"
@@ -99,7 +97,7 @@ export default function AdminBorrowedList() {
         ))}
       </div>
 
-      {/* LIST */}
+      {/* List */}
       <div className="space-y-4">
         {filteredLoans.map((loan: any) => {
           const isActive = loan.status === "ACTIVE";
@@ -109,10 +107,10 @@ export default function AdminBorrowedList() {
           return (
             <div
               key={loan.id}
-              className="bg-white rounded-xl border p-4"
+              className="bg-white rounded-2xl border p-4 shadow-sm"
             >
-              {/* TOP */}
-              <div className="flex justify-between text-xs mb-3">
+              {/* Status */}
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-xs mb-4">
                 <div>
                   Status{" "}
                   <span
@@ -134,7 +132,7 @@ export default function AdminBorrowedList() {
                     className={`font-medium ${
                       isOverdue
                         ? "text-red-500"
-                        : "text-pink-400"
+                        : "text-pink-500"
                     }`}
                   >
                     {dayjs(loan.dueAt).format("DD MMM YYYY")}
@@ -142,25 +140,23 @@ export default function AdminBorrowedList() {
                 </div>
               </div>
 
-              {/* CONTENT */}
-              <div className="flex gap-4 border-t pt-4">
-                {/* IMAGE */}
+              {/* Content */}
+              <div className="flex flex-col sm:flex-row gap-4 border-t pt-4">
                 <img
                   src={
                     loan.book?.coverImage ||
                     "/book-placeholder.png"
                   }
                   alt={loan.book?.title}
-                  className="w-14 h-20 object-cover rounded-md"
+                  className="w-20 h-28 object-cover rounded-lg mx-auto sm:mx-0"
                 />
 
-                {/* INFO */}
                 <div className="flex-1">
                   <span className="text-[10px] bg-gray-100 px-2 py-1 rounded-full">
                     {loan.book?.category?.name}
                   </span>
 
-                  <h3 className="font-medium mt-1 text-sm">
+                  <h3 className="mt-2 text-sm font-medium">
                     {loan.book?.title}
                   </h3>
 
@@ -168,41 +164,42 @@ export default function AdminBorrowedList() {
                     {loan.book?.author?.name}
                   </p>
 
-                  <p className="text-[11px] text-gray-400 mt-1">
-                    {dayjs(loan.borrowedAt).format("DD MMM YYYY")} · Duration{" "}
-                    {loan.durationDays} Days
+                  <p className="mt-2 text-[11px] text-gray-400">
+                    {dayjs(loan.borrowedAt).format("DD MMM YYYY")} ·
+                    Duration {loan.durationDays} Days
                   </p>
+
+                  <div className="mt-4">
+                    <p className="text-[11px] text-gray-400">
+                      Borrower's name
+                    </p>
+                    <p className="text-sm font-medium">
+                      {loan.user?.name}
+                    </p>
+                  </div>
                 </div>
 
-                {/* USER */}
-                <div className="text-right">
-                  <p className="text-[11px] text-gray-400">
-                    Borrower's name
-                  </p>
-                  <p className="text-sm font-medium">
-                    {loan.user?.name}
-                  </p>
-
-                  {isActive && (
+                {isActive && (
+                  <div className="sm:self-end">
                     <button
                       onClick={() =>
                         updateMutation.mutate(loan.id)
                       }
-                      className="mt-3 px-3 py-1.5 text-xs rounded-full bg-blue-600 text-white hover:bg-blue-700"
+                      className="w-full sm:w-auto px-4 py-2 text-xs rounded-full bg-blue-600 text-white hover:bg-blue-700"
                     >
                       {updateMutation.isPending
                         ? "Updating..."
                         : "Mark Returned"}
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
 
         {filteredLoans.length === 0 && (
-          <div className="text-center py-10 text-gray-400 text-sm">
+          <div className="py-10 text-center text-sm text-gray-400">
             No borrowed data found
           </div>
         )}

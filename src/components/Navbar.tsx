@@ -14,6 +14,7 @@ import {
 import {
   ChevronDown,
   Search,
+  Menu,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../api/axios";
@@ -34,22 +35,22 @@ export default function Navbar() {
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] =
+    useState(false);
 
   const dropdownRef =
     useRef<HTMLDivElement>(null);
 
-  const isAdmin =
-    user?.role === "ADMIN";
-
+  const isAdmin = user?.role === "ADMIN";
   const isAdminViewingUser =
     isAdmin && viewMode === "USER";
 
   const showUserMenu =
     !isAdmin || isAdminViewingUser;
 
-  const showCart =
-    !isAdmin;
+  const showCart = !isAdmin;
 
+  // sync search query
   useEffect(() => {
     const params = new URLSearchParams(
       location.search
@@ -57,6 +58,7 @@ export default function Navbar() {
     setSearch(params.get("search") || "");
   }, [location.search]);
 
+  // cart
   const { data } = useQuery({
     queryKey: ["cart"],
     queryFn: async () => {
@@ -71,14 +73,15 @@ export default function Navbar() {
     ? data.length
     : 0;
 
+  // close dropdown
   useEffect(() => {
     const handleOutside = (
-      event: MouseEvent
+      e: MouseEvent
     ) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(
-          event.target as Node
+          e.target as Node
         )
       ) {
         setOpen(false);
@@ -107,25 +110,19 @@ export default function Navbar() {
   ) => {
     e.preventDefault();
 
-    const keyword = search.trim();
-
-    if (!keyword) {
-      navigate("/books");
-      return;
-    }
-
     navigate(
       `/books?search=${encodeURIComponent(
-        keyword
+        search.trim()
       )}`
     );
   };
 
   return (
-    <nav className="border-b bg-white sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center">
+    <nav className="sticky top-0 z-40 bg-white border-b">
+      <div className="relative max-w-7xl mx-auto px-4 py-3 flex items-center">
+
         {/* LEFT */}
-        <div className="shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <Link
             to="/"
             className="flex items-center gap-2"
@@ -135,17 +132,17 @@ export default function Navbar() {
               alt="Booky"
               className="w-6 h-6"
             />
-            <span className="font-semibold text-lg">
+            <span className="font-semibold text-lg hidden sm:block">
               Booky
             </span>
           </Link>
         </div>
 
-        {/* CENTER */}
-        <div className="flex-1 flex justify-center px-4">
+        {/* 🔥 CENTER SEARCH */}
+        <div className="hidden sm:flex absolute left-1/2 -translate-x-1/2 w-full max-w-xl px-4">
           <form
             onSubmit={handleSearch}
-            className="relative w-full max-w-2xl"
+            className="relative w-full"
           >
             <Search
               size={18}
@@ -165,26 +162,40 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT */}
-        <div className="shrink-0 ml-auto">
+        <div className="ml-auto flex items-center gap-4">
+
           {!token ? (
-            <div className="flex gap-3">
+            <>
+              {/* MOBILE ICON */}
+              <button className="sm:hidden">
+                <Search size={20} />
+              </button>
+
+              {/* HAMBURGER */}
+              <button
+                onClick={() =>
+                  setMobileOpen(!mobileOpen)
+                }
+              >
+                <Menu size={22} />
+              </button>
+
+              {/* DESKTOP LOGIN */}
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-full border text-sm hover:bg-gray-50"
+                className="hidden sm:block text-sm text-blue-600 font-medium"
               >
                 Login
               </Link>
-
-              <Link
-                to="/register"
-                className="px-4 py-2 rounded-full bg-blue-600 text-white text-sm hover:bg-blue-700"
-              >
-                Register
-              </Link>
-            </div>
+            </>
           ) : (
-            <div className="flex items-center gap-5">
-              {/* CART hidden for admin */}
+            <>
+              {/* MOBILE SEARCH */}
+              <button className="sm:hidden">
+                <Search size={20} />
+              </button>
+
+              {/* CART */}
               {showCart && (
                 <Link
                   to="/cart"
@@ -192,10 +203,8 @@ export default function Navbar() {
                 >
                   <img
                     src="/cart.svg"
-                    alt="Cart"
                     className="w-6 h-6"
                   />
-
                   {cartCount > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">
                       {cartCount > 9
@@ -213,23 +222,23 @@ export default function Navbar() {
               >
                 <button
                   onClick={() =>
-                    setOpen((prev) => !prev)
+                    setOpen(!open)
                   }
                   className="flex items-center gap-2"
                 >
                   <img
                     src="/profile.svg"
-                    alt="Profile"
                     className="w-8 h-8 rounded-full"
                   />
 
-                  <span className="hidden sm:block text-sm font-medium max-w-[120px] truncate">
+                  {/* NAME */}
+                  <span className="hidden md:block text-sm font-medium max-w-[120px] truncate">
                     {user?.name}
                   </span>
 
                   <ChevronDown
                     size={16}
-                    className={`transition-transform ${
+                    className={`transition ${
                       open ? "rotate-180" : ""
                     }`}
                   />
@@ -237,7 +246,7 @@ export default function Navbar() {
 
                 {open && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg overflow-hidden">
-                    {/* USER MENU */}
+
                     {showUserMenu ? (
                       user?.role === "ADMIN" ? (
                         <button
@@ -309,7 +318,10 @@ export default function Navbar() {
                     <div className="border-t" />
 
                     <button
-                      onClick={handleLogout}
+                      onClick={() => {
+                        handleLogout();
+                        setOpen(false);
+                      }}
                       className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
                     >
                       Logout
@@ -317,10 +329,33 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
+
+      {/* MOBILE MENU */}
+      {mobileOpen && !token && (
+        <div className="sm:hidden border-t bg-white px-4 py-3 flex flex-col gap-3">
+          <Link
+            to="/login"
+            onClick={() =>
+              setMobileOpen(false)
+            }
+          >
+            Login
+          </Link>
+
+          <Link
+            to="/register"
+            onClick={() =>
+              setMobileOpen(false)
+            }
+          >
+            Register
+          </Link>
+        </div>
+      )}
     </nav>
   );
 }

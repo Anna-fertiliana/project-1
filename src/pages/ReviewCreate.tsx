@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosInstance } from "../api/axios";
 
 export default function ReviewCreate() {
@@ -13,23 +16,29 @@ export default function ReviewCreate() {
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
 
-    const reviewMutation = useMutation({
-      mutationFn: async () => {
-        return axiosInstance.post("/api/reviews", {
-          bookId: Number(bookId),
-          star: Number(rating),
-          comment: comment.trim(),
-        });
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["my-loans"] });
-        queryClient.invalidateQueries({ queryKey: ["book", bookId] });
-        navigate(`/reviews/${bookId}`);
-      },
-      onError: () => {
-        setError("Failed to submit review.");
-      },
-    });
+  const reviewMutation = useMutation({
+    mutationFn: async () => {
+      return axiosInstance.post("/api/reviews", {
+        bookId: Number(bookId),
+        star: Number(rating),
+        comment: comment.trim(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["my-loans"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["book", bookId],
+      });
+
+      navigate(`/reviews/${bookId}`);
+    },
+    onError: () => {
+      setError("Failed to submit review.");
+    },
+  });
 
   const handleSubmit = () => {
     if (!comment.trim()) {
@@ -42,67 +51,72 @@ export default function ReviewCreate() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      {/* Modal */}
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 relative shadow-lg">
-        
-        {/* Close button */}
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center sm:justify-center">
+      <div className="w-full bg-white rounded-t-3xl sm:rounded-2xl sm:max-w-md p-5 sm:p-6 shadow-xl relative">
+        {/* Close */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-black"
+          className="absolute top-4 right-4 text-gray-400 hover:text-black text-lg"
         >
           ✕
         </button>
 
-        <h2 className="text-lg font-semibold text-center mb-4">
+        {/* Title */}
+        <h2 className="text-lg sm:text-xl font-semibold text-center mb-4">
           Give Review
         </h2>
 
-        {/* Rating */}
-        <p className="text-sm text-gray-500 text-center mb-2">
+        {/* Subtitle */}
+        <p className="text-sm text-gray-500 text-center mb-3">
           Give Rating
         </p>
 
-        <div className="flex justify-center mb-4">
+        {/* Rating */}
+        <div className="flex justify-center gap-1 mb-5">
           {[1, 2, 3, 4, 5].map((star) => (
-            <span
+            <button
               key={star}
-              className={`text-2xl cursor-pointer ${
+              type="button"
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHover(star)}
+              onMouseLeave={() => setHover(0)}
+              className={`text-3xl sm:text-2xl transition ${
                 star <= (hover || rating)
                   ? "text-yellow-400"
                   : "text-gray-300"
               }`}
-              onClick={() => setRating(star)}
-              onMouseEnter={() => setHover(star)}
-              onMouseLeave={() => setHover(0)}
             >
               ★
-            </span>
+            </button>
           ))}
         </div>
 
         {/* Comment */}
         <textarea
-          rows={4}
+          rows={5}
           value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          onChange={(e) =>
+            setComment(e.target.value)
+          }
           placeholder="Please share your thoughts about this book"
-          className="w-full border rounded-lg px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full border rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         />
 
         {error && (
-          <p className="text-red-500 text-sm mb-3 text-center">
+          <p className="text-sm text-red-500 text-center mb-4">
             {error}
           </p>
         )}
 
-        {/* Submit */}
+        {/* Button */}
         <button
           onClick={handleSubmit}
           disabled={reviewMutation.isPending}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-full font-medium transition disabled:bg-gray-300"
         >
-          {reviewMutation.isPending ? "Sending..." : "Send"}
+          {reviewMutation.isPending
+            ? "Sending..."
+            : "Send Review"}
         </button>
       </div>
     </div>
