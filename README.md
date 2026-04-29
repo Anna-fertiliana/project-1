@@ -61,11 +61,11 @@ A modern Library Web Application built with React, featuring authentication, boo
 
 * `authSlice` → manage token & user data
 * `uiSlice` → filter, search, UI states
-* *(optional)* `cartSlice` → multiple book borrowing
+* *(optional)* `cartSlice` → handle multiple book borrowing
 
 ### React Query
 
-* `useQuery` → fetch books, details, loans
+* `useQuery` → fetch books, details, and loans
 * `useMutation` → login, borrow, review
 * Fast and responsive UI updates for better user experience
 
@@ -96,18 +96,23 @@ A modern Library Web Application built with React, featuring authentication, boo
 ## 👥 Role Access
 
 ### User
-- Browse books
-- Borrow books
-- Return books
-- Add review
+
+* Browse books
+* Borrow books
+* Return books
+* Add reviews
 
 ### Admin
-- Manage books
-- Manage users
-- Manage borrow transactions
+
+* Manage books
+* Manage users
+* Manage borrow transactions
+
+---
 
 ## 📂 Folder Structure
 
+```
 src/
 ├── api/
 ├── app/
@@ -117,6 +122,9 @@ src/
 ├── pages/
 ├── routes/
 └── utils/
+```
+
+---
 
 ## 📦 Installation
 
@@ -164,62 +172,83 @@ https://library-backend-production-b9cf.up.railway.app/api-swagger
 
 ### 🏠 Home Page
 
-![Home Page](./screenshots/home.png)
+![Home Page](./screenshots/Home.png)
 
-Landing page utama dengan banner “Welcome to Booky” serta navigasi dan search bar.
+Main landing page featuring the “Welcome to Booky” banner, navigation bar, and search functionality.
 
 ---
 
 ### 📚 Recommendation Section
 
-![Recommendation](./screenshots/recommendation.png)
+![Recommendation](./screenshots/Recomendation.png)
 
-Menampilkan daftar buku rekomendasi dalam bentuk card dengan rating dan author.
+Displays a list of recommended books in card format, including ratings and author information.
 
 ---
 
 ### 📖 Book Detail Page
 
-![Book Detail](./screenshots/book-detail.png)
+![Book Detail](./screenshots/Book-Detail.png)
 
-Halaman detail buku berisi:
-- Cover buku
-- Deskripsi
-- Rating & reviews
-- Tombol **Add to Cart** dan **Borrow**
+Book detail page includes:
+
+* Book cover
+* Description
+* Rating & reviews
+* **Add to Cart** and **Borrow** buttons
+
+---
+
+### ⭐ Reviews Section
+
+![Reviews](./screenshots/Reviews.png)
+
+Shows user reviews with ratings and comments displayed in real-time.
 
 ---
 
 ### 👤 Author Page
 
-![Author Page](./screenshots/author.png)
+![Author Page](./screenshots/Author-Detail.png)
 
-Menampilkan informasi author serta koleksi buku yang ditulis oleh author tersebut.
+Displays author information along with the list of books written by the author.
 
 ---
 
 ### 🛒 Checkout / Borrow Page
 
-![Checkout](./screenshots/checkout.png)
+![Checkout](./screenshots/Checkout.png)
 
-Halaman peminjaman buku dengan fitur:
-- Informasi user
-- Daftar buku yang dipinjam
-- Pilihan durasi peminjaman
-- Perhitungan tanggal kembali otomatis
+Borrowing page with features:
+
+* User information
+* Borrowed book list
+* Borrow duration selection
+* Automatic return date calculation
+
+---
+
+### 📦 Borrowed List
+
+![Borrowed List](./screenshots/borrowed.png)
+
+Displays borrowed and returned books with status:
+
+* **BORROWED**
+* **RETURNED**
 
 ---
 
 ## 🚀 Project Status
 
-- ✅ Authentication (Login & Register)
-- ✅ Book List with Search & Filter
-- ✅ Book Detail & Reviews
-- ✅ Borrow System (Optimistic UI)
-- ✅ User Loan History
-- ✅ Review System
-- ✅ Protected API Requests
-- ✅ Responsive UI
+* ✅ Authentication (Login & Register)
+* ✅ Book List with Search & Filter
+* ✅ Book Detail & Reviews
+* ✅ Borrow System (Optimistic UI)
+* ✅ User Loan History
+* ✅ Review System
+* ✅ Protected API Requests
+* ✅ Responsive UI
 
 This project is actively maintained and open for improvements.
 
@@ -227,12 +256,13 @@ This project is actively maintained and open for improvements.
 
 ## ⚠️ Error Handling
 
-- API request fallback
-- Empty state UI
-- Loading state
-- Form validation
-- Unauthorized redirect
+* API request fallback
+* Empty state UI
+* Loading state
+* Form validation
+* Unauthorized redirect
 
+---
 
 ## 🚀 Deployment
 
