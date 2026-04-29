@@ -25,19 +25,14 @@ export default function Login() {
     LoginRequest
   >({
     mutationFn: async (formData) => {
-      console.log("🔥 REQUEST:", formData);
-
       const response = await axiosInstance.post<LoginResponse>(
         "/api/auth/login",
         formData
       );
-
       return response.data;
     },
 
     onSuccess: (data) => {
-      console.log("✅ RESPONSE:", data);
-
       const token = data?.data?.token;
       const user = data?.data?.user;
 
@@ -46,20 +41,24 @@ export default function Login() {
         return;
       }
 
-      // ✅ simpan ke localStorage 
+      // ✅ simpan
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // ✅ simpan ke redux
       dispatch(setAuth({ token, user }));
 
-      // ✅ redirect sesuai role
-      navigate(user.role === "ADMIN" ? "/admin/users" : "/");
+      // hapus error saat user ngetik lagi
+      if (errorMsg) setErrorMsg("");
+
+      // 🔥 REDIRECT ROLE BASED
+      if (user.role === "ADMIN") {
+        navigate("/admin/books", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     },
 
     onError: (error: any) => {
-      console.log("❌ ERROR:", error);
-
       const message =
         error?.response?.data?.message ||
         "Login failed. Check your credentials.";
@@ -71,6 +70,13 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg("");
+
+    // VALIDASI SIMPLE
+    if (!form.email || !form.password) {
+      setErrorMsg("Email and password are required");
+      return;
+    }
+
     loginMutation.mutate(form);
   };
 
@@ -79,11 +85,16 @@ export default function Login() {
       ...form,
       [e.target.name]: e.target.value,
     });
+
+    // hapus error saat user ngetik lagi
+    if (errorMsg) setErrorMsg("");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white w-full max-w-md p-6 sm:p-8 rounded-2xl shadow-md">
+        
+        {/* LOGO */}
         <div className="flex items-center gap-3 mb-6">
           <img
             src="/logo.svg"
@@ -100,19 +111,20 @@ export default function Login() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* EMAIL */}
           <div>
             <label className="block text-sm mb-1">Email</label>
-
             <input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
             />
           </div>
 
+          {/* PASSWORD */}
           <div>
             <label className="block text-sm mb-1">Password</label>
 
@@ -123,7 +135,6 @@ export default function Login() {
                 value={form.password}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
               />
 
               <button
@@ -136,14 +147,16 @@ export default function Login() {
             </div>
           </div>
 
+          {/* BUTTON */}
           <button
             type="submit"
             disabled={loginMutation.isPending}
             className="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition font-medium disabled:bg-gray-300"
           >
-            {loginMutation.isPending ? "Loading..." : "Login"}
+            {loginMutation.isPending ? "Logging in..." : "Login"}
           </button>
 
+          {/* ERROR */}
           {errorMsg && (
             <p className="text-red-500 text-sm text-center">
               {errorMsg}
@@ -151,6 +164,7 @@ export default function Login() {
           )}
         </form>
 
+        {/* FOOTER */}
         <p className="text-sm text-center mt-6">
           Don't have an account?{" "}
           <Link

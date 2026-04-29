@@ -6,19 +6,43 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../api/axios";
 import dayjs from "dayjs";
+import { useAppSelector } from "../app/hooks";
 
 export default function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const { user, viewMode } = useAppSelector(
+    (state) => state.auth
+  );
+
+  const isAdminPreview =
+    user?.role === "ADMIN" &&
+    viewMode === "USER";
+
   const { data: book, isLoading } = useQuery({
     queryKey: ["book", id],
     queryFn: async () => {
-      const res = await axiosInstance.get(`/api/books/${id}`);
+      const res = await axiosInstance.get(
+        `/api/books/${id}`
+      );
       return res.data.data;
     },
     enabled: !!id,
   });
+
+  const handleBorrow = () => {
+    if (isAdminPreview) {
+      alert(
+        "Admin cannot borrow books while using View as User."
+      );
+      return;
+    }
+
+    navigate("/borrow", {
+      state: { bookId: book.id },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -90,11 +114,7 @@ export default function BookDetail() {
 
           <div className="mt-8">
             <button
-              onClick={() =>
-                navigate("/borrow", {
-                  state: { bookId: book.id },
-                })
-              }
+              onClick={handleBorrow}
               className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700"
             >
               Borrow Book
@@ -103,7 +123,7 @@ export default function BookDetail() {
         </div>
       </div>
 
-            {/* Reviews */}
+      {/* Reviews */}
       {Array.isArray(book.reviews) &&
         book.reviews.length > 0 && (
           <div className="mt-16 sm:mt-20">
@@ -130,7 +150,9 @@ export default function BookDetail() {
                       </p>
 
                       <p className="text-xs text-gray-400">
-                        {dayjs(review.createdAt).format(
+                        {dayjs(
+                          review.createdAt
+                        ).format(
                           "DD MMMM YYYY"
                         )}
                       </p>

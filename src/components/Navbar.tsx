@@ -7,8 +7,14 @@ import {
   useAppSelector,
   useAppDispatch,
 } from "../app/hooks";
-import { logout } from "../features/authSlice";
-import { ChevronDown, Search } from "lucide-react";
+import {
+  logout,
+  setViewMode,
+} from "../features/authSlice";
+import {
+  ChevronDown,
+  Search,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { axiosInstance } from "../api/axios";
 import {
@@ -22,42 +28,67 @@ export default function Navbar() {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  const { user, token } = useAppSelector(
+  const { user, token, viewMode } = useAppSelector(
     (state) => state.auth
   );
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef =
+    useRef<HTMLDivElement>(null);
+
+  const isAdmin =
+    user?.role === "ADMIN";
+
+  const isAdminViewingUser =
+    isAdmin && viewMode === "USER";
+
+  const showUserMenu =
+    !isAdmin || isAdminViewingUser;
+
+  const showCart =
+    !isAdmin;
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(
+      location.search
+    );
     setSearch(params.get("search") || "");
   }, [location.search]);
 
   const { data } = useQuery({
     queryKey: ["cart"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/cart");
+      const res =
+        await axiosInstance.get("/api/cart");
       return res.data?.data || [];
     },
-    enabled: !!token,
+    enabled: !!token && showCart,
   });
 
-  const cartCount = Array.isArray(data) ? data.length : 0;
+  const cartCount = Array.isArray(data)
+    ? data.length
+    : 0;
 
   useEffect(() => {
-    const handleOutside = (event: MouseEvent) => {
+    const handleOutside = (
+      event: MouseEvent
+    ) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(
+          event.target as Node
+        )
       ) {
         setOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener(
+      "mousedown",
+      handleOutside
+    );
 
     return () =>
       document.removeEventListener(
@@ -84,7 +115,9 @@ export default function Navbar() {
     }
 
     navigate(
-      `/books?search=${encodeURIComponent(keyword)}`
+      `/books?search=${encodeURIComponent(
+        keyword
+      )}`
     );
   };
 
@@ -151,23 +184,27 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-5">
-              {/* CART */}
-              <Link
-                to="/cart"
-                className="relative"
-              >
-                <img
-                  src="/cart.svg"
-                  alt="Cart"
-                  className="w-6 h-6"
-                />
+              {/* CART hidden for admin */}
+              {showCart && (
+                <Link
+                  to="/cart"
+                  className="relative"
+                >
+                  <img
+                    src="/cart.svg"
+                    alt="Cart"
+                    className="w-6 h-6"
+                  />
 
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </span>
-                )}
-              </Link>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1.5 rounded-full">
+                      {cartCount > 9
+                        ? "9+"
+                        : cartCount}
+                    </span>
+                  )}
+                </Link>
+              )}
 
               {/* PROFILE */}
               <div
@@ -200,29 +237,74 @@ export default function Navbar() {
 
                 {open && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border rounded-xl shadow-lg overflow-hidden">
-                    <Link
-                      to="/profile"
-                      onClick={() => setOpen(false)}
-                      className="block px-4 py-2 text-sm hover:bg-gray-50"
-                    >
-                      Profile
-                    </Link>
+                    {/* USER MENU */}
+                    {showUserMenu ? (
+                      user?.role === "ADMIN" ? (
+                        <button
+                          onClick={() => {
+                            dispatch(
+                              setViewMode(
+                                "ADMIN"
+                              )
+                            );
+                            navigate(
+                              "/admin/books"
+                            );
+                            setOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                        >
+                          Back to Dashboard
+                        </button>
+                      ) : (
+                        <>
+                          <Link
+                            to="/profile"
+                            onClick={() =>
+                              setOpen(false)
+                            }
+                            className="block px-4 py-2 text-sm hover:bg-gray-50"
+                          >
+                            Profile
+                          </Link>
 
-                    <Link
-                      to="/borrowed"
-                      onClick={() => setOpen(false)}
-                      className="block px-4 py-2 text-sm hover:bg-gray-50"
-                    >
-                      Borrowed List
-                    </Link>
+                          <Link
+                            to="/borrowed"
+                            onClick={() =>
+                              setOpen(false)
+                            }
+                            className="block px-4 py-2 text-sm hover:bg-gray-50"
+                          >
+                            Borrowed
+                          </Link>
 
-                    <Link 
-                      to="/reviews/16"
-                      onClick={() => setOpen(false)}
-                      className="block px-4 py-2 text-sm hover:bg-gray-50"
-                    >
-                      Reviews
-                    </Link>
+                          <Link
+                            to="/reviews"
+                            onClick={() =>
+                              setOpen(false)
+                            }
+                            className="block px-4 py-2 text-sm hover:bg-gray-50"
+                          >
+                            Reviews
+                          </Link>
+                        </>
+                      )
+                    ) : (
+                      <button
+                        onClick={() => {
+                          dispatch(
+                            setViewMode(
+                              "USER"
+                            )
+                          );
+                          navigate("/");
+                          setOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                      >
+                        View as User
+                      </button>
+                    )}
 
                     <div className="border-t" />
 

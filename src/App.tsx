@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 
 import Home from "./pages/Home";
@@ -22,7 +22,6 @@ import Reviews from "./pages/Review";
 import BooksPage from "./pages/BooksPage";
 import ReviewCreate from "./pages/ReviewCreate";
 
-
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminUserList from "./pages/admin/AdminUserList";
 import AdminBorrowedList from "./pages/admin/AdminBorrowedList";
@@ -30,7 +29,7 @@ import AdminBookList from "./pages/admin/AdminBookList";
 import AdminEditBook from "./pages/admin/AdminEditBook";
 import AdminBookPreview from "./pages/admin/AdminBookPreview";
 import AdminCreateBook from "./pages/admin/AdminCreatedBook";
-
+import AdminUserView from "./pages/admin/AdminUserView";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -59,19 +58,20 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* == MAIN LAYOUT == */}
-        <Route element={<MainLayout />}>
-          {/* PUBLIC ROUTES */}
-          <Route path="/" element={<Home />} />
-          <Route path="/books/:id" element={<BookDetail />} />
-          <Route path="/category" element={<Category />} />
-          <Route path="/authors/:id" element={<AuthorDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/books" element={<BooksPage />} />
 
-          {/* USER PROTECTED ROUTES */}
+        {/* ===== USER AREA ===== */}
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
+
+          <Route path="books" element={<BooksPage />} />
+          <Route path="books/:id" element={<BookDetail />} />
+          <Route path="category" element={<Category />} />
+          <Route path="authors/:id" element={<AuthorDetail />} />
+          <Route path="cart" element={<Cart />} />
+
+          {/* USER PROTECTED */}
           <Route
-            path="/borrow"
+            path="borrow"
             element={
               <ProtectedRoute role="USER">
                 <Borrow />
@@ -80,7 +80,7 @@ function App() {
           />
 
           <Route
-            path="/borrow-success"
+            path="borrow-success"
             element={
               <ProtectedRoute role="USER">
                 <BorrowSuccess />
@@ -89,7 +89,7 @@ function App() {
           />
 
           <Route
-            path="/profile"
+            path="profile"
             element={
               <ProtectedRoute role="USER">
                 <Profile />
@@ -98,7 +98,7 @@ function App() {
           />
 
           <Route
-            path="/borrowed"
+            path="borrowed"
             element={
               <ProtectedRoute role="USER">
                 <Borrowed />
@@ -107,7 +107,7 @@ function App() {
           />
 
           <Route
-            path="/reviews/:bookId?"
+            path="reviews/:bookId?"
             element={
               <ProtectedRoute role="USER">
                 <Reviews />
@@ -116,7 +116,7 @@ function App() {
           />
 
           <Route
-            path="/reviews/create/:bookId"
+            path="reviews/create/:bookId"
             element={
               <ProtectedRoute role="USER">
                 <ReviewCreate />
@@ -125,28 +125,35 @@ function App() {
           />
         </Route>
 
-
-
-        {/* == ADMIN AREA == */}
+        {/* ===== ADMIN AREA ===== */}
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
             <ProtectedRoute role="ADMIN">
               <AdminLayout />
             </ProtectedRoute>
           }
         >
+          <Route index element={<Navigate to="books" replace />} />
+
           <Route path="users" element={<AdminUserList />} />
           <Route path="borrowed" element={<AdminBorrowedList />} />
           <Route path="books" element={<AdminBookList />} />
           <Route path="books/create" element={<AdminCreateBook />} />
           <Route path="books/edit/:id" element={<AdminEditBook />} />
           <Route path="books/:id" element={<AdminBookPreview />} />
+
+          {/* USER VIEW AS ADMIN */}
+          <Route path="user-view" element={<AdminUserView />} />
         </Route>
 
-        {/* == AUTH == */}
+        {/* ===== AUTH ===== */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* ===== FALLBACK ===== */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </BrowserRouter>
   );
